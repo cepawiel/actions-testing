@@ -1,3 +1,21 @@
+This toolchain development/playground branch contains the following toolchain configuration options:
+
+| filename | sh4 gcc | newlib | sh4 binutils | arm gcc | arm binutils | notes / known issues |
+|---------:|:-------:|:----------:|:------------:|:-------:|:----------------:|:------|
+| config.mk.4.7.4.sample | 4.7.4 | 2.0.0 | 2.34 | 4.7.4 | 2.34 | "legacy" configuration |
+| config.mk.4.9.4-classic.sample | 4.9.4 | 2.0.0 | 2.34 | 4.7.4 | 2.34 | fails building when host compiler is gcc 11 or greater |
+| config.mk.4.9.4-modern.sample | 4.9.4 | 4.3.0 | 2.40 | 8.5.0 | 2.40 | fails building when host compiler is gcc 11 or greater |
+| config.mk.9.3.0-classic.sample | 9.3.0 | 3.3.0 | 2.34 | 8.4.0 | 2.34 | "stable" configuration |
+| config.mk.9.3.0-modern.sample | 9.3.0 | 4.3.0 | 2.40 | 8.5.0 | 2.40 | |
+| config.mk.10.4.0.sample | 10.4.0 | 4.3.0 | 2.40 | 8.5.0 | 2.40 | |
+| config.mk.11.3.0.sample | 11.3.0 | 4.3.0 | 2.40 | 8.5.0 | 2.40 | |
+| config.mk.12.2.0.sample | 12.2.0 | 4.3.0 | 2.40 | 8.5.0 | 2.40 | |
+| config.mk.13.1.0.sample | 13.1.0 | 4.3.0 | 2.40 | 8.5.0 | 2.40 | "testing" configuration |
+| config.mk.devel.sample | master | 4.3.0 | 2.40 | 8.5.0 | 2.40 | master branch containing 14.0.0 -- builds as of 2023-04-26 |
+| config.mk.gccrs.sample | master | 4.3.0 | 2.40 | 8.5.0 | 2.40 | gccrs master branch for latest Rust support -- builds with workaround as of 2023-04-26 -- read config file for details |
+
+Toolchains are primarily targeted towards Linux and may not compile on macOS or Windows without additional patching.
+
 # Sega Dreamcast Toolchains Maker (`dc-chain`)
 
 The **Sega Dreamcast Toolchains Maker** (`dc-chain`) utility is a set of files
