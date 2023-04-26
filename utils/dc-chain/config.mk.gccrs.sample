@@ -20,44 +20,38 @@
 ###############################################################################
 ###############################################################################
 ### THIS CONFIG IS FOR AN EXPERIMENTAL VERSION OF GCC!
-## THERE ARE KNOWN ISSUES BUILDING THIS VERSION as of 2023-04-02.
-## Issue #1 -- See line 34.
-## Issue #2 -- See line 129.
-## Issue #3 -- Newlib errors occur when attempting to build raw toolchain
+## THERE ARE KNOWN ISSUES BUILDING THIS VERSION as of 2023-04-26.
+## Issue #1 -- See line 123.
+## Issue #2 -- Newlib errors occur when attempting to build raw toolchain
 ##             without KOS patches. No known workaround at this time.
 ###############################################################################
 ###############################################################################
 
 # Toolchain versions for SH
 sh_binutils_ver=2.40
-###############################################################################
-### Build script cannot pull from git, so workaround:
-# Leave the following line as 13.1.0, perform ./download.sh and ./unpack.sh,
-# then run: git clone https://github.com/Rust-GCC/gccrs gcc-rs
-# then re-open this file and swap the following line to rs before building.
-###############################################################################
-sh_gcc_ver=13.1.0
-#sh_gcc_ver=rs
+sh_gcc_ver=rs
 newlib_ver=4.3.0.20230120
 gdb_ver=13.1
 insight_ver=6.8-1
 
 # Tarball extensions to download for SH
-sh_binutils_tarball_type=xz
-sh_gcc_tarball_type=xz
-newlib_tarball_type=gz
-gdb_tarball_type=xz
-insight_tarball_type=bz2
+sh_binutils_download_type=xz
+sh_gcc_download_type=git
+sh_gcc_git_repo=https://github.com/Rust-GCC/gccrs.git
+sh_gcc_git_branch=master
+newlib_download_type=gz
+gdb_download_type=xz
+insight_download_type=bz2
 
 # Toolchain for ARM
 # The ARM version of binutils/gcc is separated out as the particular CPU
 # versions we need may not be available in newer versions of GCC.
 arm_binutils_ver=2.40
-arm_gcc_ver=8.4.0
+arm_gcc_ver=8.5.0
 
 # Tarball extensions to download for ARM
-arm_binutils_tarball_type=xz
-arm_gcc_tarball_type=xz
+arm_binutils_download_type=xz
+arm_gcc_download_type=xz
 
 # GCC custom dependencies
 # Specify here if you want to use custom GMP, MPFR and MPC libraries as they are
@@ -79,10 +73,10 @@ sh_mpc_ver=1.2.1
 sh_isl_ver=0.24
 
 # Tarball extensions to download for GCC dependencies for SH
-sh_gmp_tarball_type=bz2
-sh_mpfr_tarball_type=bz2
-sh_mpc_tarball_type=gz
-sh_isl_tarball_type=bz2
+sh_gmp_download_type=bz2
+sh_mpfr_download_type=bz2
+sh_mpc_download_type=gz
+sh_isl_download_type=bz2
 
 # GCC dependencies for ARM
 arm_gmp_ver=6.1.0
@@ -91,10 +85,10 @@ arm_mpc_ver=1.0.3
 arm_isl_ver=0.18
 
 # Tarball extensions to download for GCC dependencies for ARM
-arm_gmp_tarball_type=bz2
-arm_mpfr_tarball_type=bz2
-arm_mpc_tarball_type=gz
-arm_isl_tarball_type=bz2
+arm_gmp_download_type=bz2
+arm_mpfr_download_type=bz2
+arm_mpc_download_type=gz
+arm_isl_download_type=bz2
 
 # Toolchains base
 # Indicate the root directory where toolchains will be installed
@@ -126,14 +120,14 @@ makejobs=-j2
 # short on hard drive space. Only C is required to build KallistiOS, but some
 # included examples use other languages. 
 ###############################################################################
-### C++ and Obj-C++ do not build with gcc-rs. They have been disabled. However,
-# C++ is required to build Rust. You must symlink an existing sh-elf-c++ binary
+### C++ does not build properly with gcc-rs at this time. However, C++ is
+# required to build Rust. You must symlink an existing sh-elf-c++ binary
 # from another stable toolchain to workaround this, like so:
 # mkdir -p <toolchains_base>/sh-elf/bin
 # ln -s /opt/toolchains/dc/sh-elf/bin/sh-elf-c++ \
 #        <toolchains_base>/sh-elf/bin/sh-elf-c++
 ###############################################################################
-pass2_languages=c,objc,rust
+pass2_languages=c,c++,objc,obj-c++,rust
 
 # Download protocol (http|https|ftp)
 # Specify here the protocol you want to use for downloading the packages.

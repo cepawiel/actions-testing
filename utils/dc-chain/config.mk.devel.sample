@@ -17,16 +17,25 @@
 # gdb
 # insight
 
+###############################################################################
+###############################################################################
+### THIS CONFIG IS FOR AN EXPERIMENTAL VERSION OF GCC!
+## THERE ARE NO KNOWN ISSUES BUILDING THIS VERSION as of 2023-04-26.
+###############################################################################
+###############################################################################
+
 # Toolchain versions for SH
-sh_binutils_ver=2.34
-sh_gcc_ver=4.9.4
-newlib_ver=2.0.0
-gdb_ver=9.2
+sh_binutils_ver=2.40
+sh_gcc_ver=devel
+newlib_ver=4.3.0.20230120
+gdb_ver=13.1
 insight_ver=6.8-1
 
 # Tarball extensions to download for SH
 sh_binutils_download_type=xz
-sh_gcc_download_type=bz2
+sh_gcc_download_type=git
+sh_gcc_git_repo=git://gcc.gnu.org/git/gcc.git
+sh_gcc_git_branch=master
 newlib_download_type=gz
 gdb_download_type=xz
 insight_download_type=bz2
@@ -34,12 +43,12 @@ insight_download_type=bz2
 # Toolchain for ARM
 # The ARM version of binutils/gcc is separated out as the particular CPU
 # versions we need may not be available in newer versions of GCC.
-arm_binutils_ver=2.34
-arm_gcc_ver=4.7.4
+arm_binutils_ver=2.40
+arm_gcc_ver=8.5.0
 
 # Tarball extensions to download for ARM
 arm_binutils_download_type=xz
-arm_gcc_download_type=bz2
+arm_gcc_download_type=xz
 
 # GCC custom dependencies
 # Specify here if you want to use custom GMP, MPFR and MPC libraries as they are
@@ -55,10 +64,10 @@ arm_gcc_download_type=bz2
 # only if the 'use_custom_dependencies' flag is set to '1'.
 
 # GCC dependencies for SH
-sh_gmp_ver=4.3.2
-sh_mpfr_ver=2.4.2
-sh_mpc_ver=0.8.1
-#sh_isl_ver=0.18
+sh_gmp_ver=6.2.1
+sh_mpfr_ver=4.1.0
+sh_mpc_ver=1.2.1
+sh_isl_ver=0.24
 
 # Tarball extensions to download for GCC dependencies for SH
 sh_gmp_download_type=bz2
@@ -67,10 +76,10 @@ sh_mpc_download_type=gz
 sh_isl_download_type=bz2
 
 # GCC dependencies for ARM
-arm_gmp_ver=4.3.2
-arm_mpfr_ver=2.4.2
-arm_mpc_ver=0.8.1
-#arm_isl_ver=0.18
+arm_gmp_ver=6.1.0
+arm_mpfr_ver=3.1.4
+arm_mpc_ver=1.0.3
+arm_isl_ver=0.18
 
 # Tarball extensions to download for GCC dependencies for ARM
 arm_gmp_download_type=bz2
@@ -101,12 +110,13 @@ verbose=1
 # detected on some OS.
 makejobs=-j2
 
-# Languages (c|c++|objc|obj-c++)
+# Languages (c|c++|objc|obj-c++|rust)
 # Set the languages to build for pass 2 of building gcc for sh-elf. The default
-# here is to build C, C++, Objective C, and Objective C++. You may want to take
-# out the latter two if you're not worried about them and/or you're short on
-# hard drive space.
-pass2_languages=c,c++,objc,obj-c++
+# here is to build C, C++, Objective-C, Objective-C++, and Rust. You may want
+# to take out some languages if you're not worried about them and/or you're
+# short on hard drive space. Only C is required to build KallistiOS, but some
+# included examples use other languages. 
+pass2_languages=c,c++,objc,obj-c++,rust
 
 # Download protocol (http|https|ftp)
 # Specify here the protocol you want to use for downloading the packages.
@@ -132,18 +142,6 @@ thread_model=kos
 # This may be useful only if you plan to debug the toolchain itself.
 install_mode=install-strip
 
-# C99 Format Specifier Support (1|0)
-# Define this to build SH4 Newlib with additional support for the C99 format
-# specifiers, used by printf and friends. These include support for size_t,
-# ptrdiff_t, intmax_t, and sized integral types.
-#newlib_c99_formats=1
-
-# Optimize Newlib for Space (1|0)
-# Define this to enable optimizing for space when building Newlib. This will
-# build Newlib with compiler flags which favor smaller code sizes over faster
-# performance.
-#newlib_opt_space=1
-
 # MinGW/MSYS
 # Standalone binaries (1|0)
 # Define this if you want a standalone, no dependency binaries (i.e. static)
@@ -153,8 +151,9 @@ install_mode=install-strip
 
 # Automatic fixup SH-4 Newlib (1|0)
 # Uncomment this if you want to disable the automatic fixup sh4 newlib needed by
-# KallistiOS. This will also disable the 'kos' thread model. Don't mess with that 
-# flag unless you know exactly what you are doing.
+# KallistiOS. This will keep the generated toolchain completely raw. This will
+# also disable the 'kos' thread model. Don't mess with that flag unless you know
+# exactly what you are doing.
 #auto_fixup_sh4_newlib=0
 
 # Automatic patching for KOS (1|0)
