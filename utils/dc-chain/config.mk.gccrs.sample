@@ -127,7 +127,7 @@ makejobs=-j2
 # ln -s /opt/toolchains/dc/sh-elf/bin/sh-elf-c++ \
 #        <toolchains_base>/sh-elf/bin/sh-elf-c++
 ###############################################################################
-pass2_languages=c,c++,objc,obj-c++,rust
+pass2_languages=c,objc,rust
 
 # Download protocol (http|https|ftp)
 # Specify here the protocol you want to use for downloading the packages.
