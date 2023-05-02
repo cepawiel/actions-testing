@@ -1,6 +1,6 @@
 diff --color -ruN gcc-10.4.0/gcc/config/sh/sh-c.c gcc-10.4.0-kos/gcc/config/sh/sh-c.c
---- gcc-10.4.0/gcc/config/sh/sh-c.c	2023-04-26 13:02:36.060030213 -0500
-+++ gcc-10.4.0-kos/gcc/config/sh/sh-c.c	2023-04-26 13:01:00.469762650 -0500
+--- gcc-10.4.0/gcc/config/sh/sh-c.c	2023-05-02 11:55:02.321621847 -0500
++++ gcc-10.4.0-kos/gcc/config/sh/sh-c.c	2023-05-02 11:54:37.549568023 -0500
 @@ -141,4 +141,11 @@
  
    cpp_define_formatted (pfile, "__SH_ATOMIC_MODEL_%s__",
@@ -14,8 +14,8 @@ diff --color -ruN gcc-10.4.0/gcc/config/sh/sh-c.c gcc-10.4.0-kos/gcc/config/sh/s
 +  builtin_define ("__KOS_GCC_32MB__");
  }
 diff --color -ruN gcc-10.4.0/gcc/config/sh/sh_treg_combine.cc gcc-10.4.0-kos/gcc/config/sh/sh_treg_combine.cc
---- gcc-10.4.0/gcc/config/sh/sh_treg_combine.cc	2023-04-26 13:02:36.061030216 -0500
-+++ gcc-10.4.0-kos/gcc/config/sh/sh_treg_combine.cc	2023-04-26 13:01:00.469762650 -0500
+--- gcc-10.4.0/gcc/config/sh/sh_treg_combine.cc	2023-05-02 11:55:02.321621847 -0500
++++ gcc-10.4.0-kos/gcc/config/sh/sh_treg_combine.cc	2023-05-02 11:54:37.549568023 -0500
 @@ -37,6 +37,7 @@
  #include "cfgrtl.h"
  #include "tree-pass.h"
@@ -36,8 +36,8 @@ diff --color -ruN gcc-10.4.0/gcc/config/sh/sh_treg_combine.cc gcc-10.4.0-kos/gcc
  // RTL pass class
  
 diff --color -ruN gcc-10.4.0/gcc/configure gcc-10.4.0-kos/gcc/configure
---- gcc-10.4.0/gcc/configure	2023-04-26 13:02:38.206036216 -0500
-+++ gcc-10.4.0-kos/gcc/configure	2023-04-26 13:01:00.471762656 -0500
+--- gcc-10.4.0/gcc/configure	2023-05-02 11:55:04.392626346 -0500
++++ gcc-10.4.0-kos/gcc/configure	2023-05-02 11:54:37.551568027 -0500
 @@ -12255,7 +12255,7 @@
      target_thread_file='single'
      ;;
@@ -48,9 +48,9 @@ diff --color -ruN gcc-10.4.0/gcc/configure gcc-10.4.0-kos/gcc/configure
      ;;
    *)
 diff --color -ruN gcc-10.4.0/libgcc/config/sh/crt1.S gcc-10.4.0-kos/libgcc/config/sh/crt1.S
---- gcc-10.4.0/libgcc/config/sh/crt1.S	2023-04-26 13:02:35.386028328 -0500
-+++ gcc-10.4.0-kos/libgcc/config/sh/crt1.S	2023-04-26 13:02:15.613973026 -0500
-@@ -1,724 +1,225 @@
+--- gcc-10.4.0/libgcc/config/sh/crt1.S	2023-05-02 11:55:01.628620341 -0500
++++ gcc-10.4.0-kos/libgcc/config/sh/crt1.S	2023-05-02 11:54:46.381587215 -0500
+@@ -1,724 +1,230 @@
 -/* Copyright (C) 2000-2020 Free Software Foundation, Inc.
 -   This file was pretty much copied from newlib.
 +! KallistiOS ##version##
@@ -453,6 +453,9 @@ diff --color -ruN gcc-10.4.0/libgcc/config/sh/crt1.S gcc-10.4.0-kos/libgcc/confi
 +	! Program can return here (not likely) or jump here directly
 +	! from anywhere in it to go straight back to the monitor
 +_arch_real_exit:
++	! Save exit code parameter to r8
++	mov r4, r8
++
 +	! Reset SR
 +	mov.l	old_sr,r0
 +	ldc	r0,sr
@@ -744,6 +747,8 @@ diff --color -ruN gcc-10.4.0/libgcc/config/sh/crt1.S gcc-10.4.0-kos/libgcc/confi
 -	mov	r14,r15
 -	mov.l	@r15+,r14
 -	rts	
++	! Move saved exit code to be used as exit syscall parameter
++	mov r8, r5
 +	jsr	@r0
 +	mov	#15,r4
 +
@@ -985,7 +990,7 @@ diff --color -ruN gcc-10.4.0/libgcc/config/sh/crt1.S gcc-10.4.0-kos/libgcc/confi
 +	.word	0x092d
 diff --color -ruN gcc-10.4.0/libgcc/config/sh/fake-kos.S gcc-10.4.0-kos/libgcc/config/sh/fake-kos.S
 --- gcc-10.4.0/libgcc/config/sh/fake-kos.S	1969-12-31 18:00:00.000000000 -0600
-+++ gcc-10.4.0-kos/libgcc/config/sh/fake-kos.S	2023-04-26 13:01:00.472762658 -0500
++++ gcc-10.4.0-kos/libgcc/config/sh/fake-kos.S	2023-05-02 11:54:37.552568029 -0500
 @@ -0,0 +1,78 @@
 +! Weakly linked symbols used to get GCC to hopefully compile itself properly.
 +! These will be replaced by the real symbols in actual compiled programs.
@@ -1067,7 +1072,7 @@ diff --color -ruN gcc-10.4.0/libgcc/config/sh/fake-kos.S gcc-10.4.0-kos/libgcc/c
 +    mov     #-1, r0
 diff --color -ruN gcc-10.4.0/libgcc/config/sh/gthr-kos.h gcc-10.4.0-kos/libgcc/config/sh/gthr-kos.h
 --- gcc-10.4.0/libgcc/config/sh/gthr-kos.h	1969-12-31 18:00:00.000000000 -0600
-+++ gcc-10.4.0-kos/libgcc/config/sh/gthr-kos.h	2023-04-26 13:01:00.472762658 -0500
++++ gcc-10.4.0-kos/libgcc/config/sh/gthr-kos.h	2023-05-02 11:54:37.552568029 -0500
 @@ -0,0 +1,401 @@
 +/* Copyright (C) 2009, 2010, 2011, 2012, 2020 Lawrence Sebald */
 +
@@ -1471,8 +1476,8 @@ diff --color -ruN gcc-10.4.0/libgcc/config/sh/gthr-kos.h gcc-10.4.0-kos/libgcc/c
 +
 +#endif /* ! GCC_GTHR_KOS_H */
 diff --color -ruN gcc-10.4.0/libgcc/config/sh/t-sh gcc-10.4.0-kos/libgcc/config/sh/t-sh
---- gcc-10.4.0/libgcc/config/sh/t-sh	2023-04-26 13:02:35.386028328 -0500
-+++ gcc-10.4.0-kos/libgcc/config/sh/t-sh	2023-04-26 13:01:00.472762658 -0500
+--- gcc-10.4.0/libgcc/config/sh/t-sh	2023-05-02 11:55:01.629620343 -0500
++++ gcc-10.4.0-kos/libgcc/config/sh/t-sh	2023-05-02 11:54:37.552568029 -0500
 @@ -23,6 +23,8 @@
    $(LIB1ASMFUNCS_CACHE)
  LIB1ASMFUNCS_CACHE = _ic_invalidate _ic_invalidate_array
@@ -1483,8 +1488,8 @@ diff --color -ruN gcc-10.4.0/libgcc/config/sh/t-sh gcc-10.4.0-kos/libgcc/config/
  	$(gcc_compile) -c $<
  
 diff --color -ruN gcc-10.4.0/libgcc/configure gcc-10.4.0-kos/libgcc/configure
---- gcc-10.4.0/libgcc/configure	2023-04-26 13:02:35.417028415 -0500
-+++ gcc-10.4.0-kos/libgcc/configure	2023-04-26 13:01:00.472762658 -0500
+--- gcc-10.4.0/libgcc/configure	2023-05-02 11:55:01.660620410 -0500
++++ gcc-10.4.0-kos/libgcc/configure	2023-05-02 11:54:37.552568029 -0500
 @@ -5649,6 +5649,7 @@
      tpf)	thread_header=config/s390/gthr-tpf.h ;;
      vxworks)	thread_header=config/gthr-vxworks.h ;;
@@ -1494,8 +1499,8 @@ diff --color -ruN gcc-10.4.0/libgcc/configure gcc-10.4.0-kos/libgcc/configure
  
  
 diff --color -ruN gcc-10.4.0/libobjc/configure gcc-10.4.0-kos/libobjc/configure
---- gcc-10.4.0/libobjc/configure	2023-04-26 13:02:35.419028420 -0500
-+++ gcc-10.4.0-kos/libobjc/configure	2023-04-26 13:01:00.473762661 -0500
+--- gcc-10.4.0/libobjc/configure	2023-05-02 11:55:01.662620415 -0500
++++ gcc-10.4.0-kos/libobjc/configure	2023-05-02 11:54:37.553568031 -0500
 @@ -2917,11 +2917,9 @@
  
  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
@@ -1509,8 +1514,8 @@ diff --color -ruN gcc-10.4.0/libobjc/configure gcc-10.4.0-kos/libobjc/configure
    return 0;
  }
 diff --color -ruN gcc-10.4.0/libstdc++-v3/config/cpu/sh/atomicity.h gcc-10.4.0-kos/libstdc++-v3/config/cpu/sh/atomicity.h
---- gcc-10.4.0/libstdc++-v3/config/cpu/sh/atomicity.h	2023-04-26 13:02:35.625028996 -0500
-+++ gcc-10.4.0-kos/libstdc++-v3/config/cpu/sh/atomicity.h	2023-04-26 13:01:00.473762661 -0500
+--- gcc-10.4.0/libstdc++-v3/config/cpu/sh/atomicity.h	2023-05-02 11:55:01.868620862 -0500
++++ gcc-10.4.0-kos/libstdc++-v3/config/cpu/sh/atomicity.h	2023-05-02 11:54:37.553568031 -0500
 @@ -22,14 +22,40 @@
  // see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
  // <http://www.gnu.org/licenses/>.
@@ -1562,8 +1567,8 @@ diff --color -ruN gcc-10.4.0/libstdc++-v3/config/cpu/sh/atomicity.h gcc-10.4.0-k
 +_GLIBCXX_END_NAMESPACE_VERSION
 +} // namespace
 diff --color -ruN gcc-10.4.0/libstdc++-v3/configure gcc-10.4.0-kos/libstdc++-v3/configure
---- gcc-10.4.0/libstdc++-v3/configure	2023-04-26 13:02:35.944029889 -0500
-+++ gcc-10.4.0-kos/libstdc++-v3/configure	2023-04-26 13:01:00.477762672 -0500
+--- gcc-10.4.0/libstdc++-v3/configure	2023-05-02 11:55:02.192621566 -0500
++++ gcc-10.4.0-kos/libstdc++-v3/configure	2023-05-02 11:54:37.557568040 -0500
 @@ -15648,6 +15648,7 @@
      tpf)	thread_header=config/s390/gthr-tpf.h ;;
      vxworks)	thread_header=config/gthr-vxworks.h ;;

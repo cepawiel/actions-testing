@@ -1,6 +1,6 @@
 diff --color -ruN gcc-rs/gcc/config/sh/sh-c.cc gcc-rs-kos/gcc/config/sh/sh-c.cc
---- gcc-rs/gcc/config/sh/sh-c.cc	2023-04-26 13:40:43.102324829 -0500
-+++ gcc-rs-kos/gcc/config/sh/sh-c.cc	2023-04-26 13:39:59.203211929 -0500
+--- gcc-rs/gcc/config/sh/sh-c.cc	2023-05-02 12:15:35.035168131 -0500
++++ gcc-rs-kos/gcc/config/sh/sh-c.cc	2023-05-02 12:15:05.585109079 -0500
 @@ -141,4 +141,11 @@
  
    cpp_define_formatted (pfile, "__SH_ATOMIC_MODEL_%s__",
@@ -14,8 +14,8 @@ diff --color -ruN gcc-rs/gcc/config/sh/sh-c.cc gcc-rs-kos/gcc/config/sh/sh-c.cc
 +  builtin_define ("__KOS_GCC_32MB__");
  }
 diff --color -ruN gcc-rs/gcc/configure gcc-rs-kos/gcc/configure
---- gcc-rs/gcc/configure	2023-04-26 13:40:43.156324968 -0500
-+++ gcc-rs-kos/gcc/configure	2023-04-26 13:39:59.205211934 -0500
+--- gcc-rs/gcc/configure	2023-05-02 12:15:35.041168143 -0500
++++ gcc-rs-kos/gcc/configure	2023-05-02 12:15:05.587109083 -0500
 @@ -13015,7 +13015,7 @@
      target_thread_file='single'
      ;;
@@ -26,9 +26,9 @@ diff --color -ruN gcc-rs/gcc/configure gcc-rs-kos/gcc/configure
      ;;
    *)
 diff --color -ruN gcc-rs/libgcc/config/sh/crt1.S gcc-rs-kos/libgcc/config/sh/crt1.S
---- gcc-rs/libgcc/config/sh/crt1.S	2023-04-26 13:40:49.453341162 -0500
-+++ gcc-rs-kos/libgcc/config/sh/crt1.S	2023-04-26 13:39:59.205211934 -0500
-@@ -1,724 +1,225 @@
+--- gcc-rs/libgcc/config/sh/crt1.S	2023-05-02 12:15:33.957165969 -0500
++++ gcc-rs-kos/libgcc/config/sh/crt1.S	2023-05-02 12:15:15.086128130 -0500
+@@ -1,724 +1,230 @@
 -/* Copyright (C) 2000-2023 Free Software Foundation, Inc.
 -   This file was pretty much copied from newlib.
 +! KallistiOS ##version##
@@ -431,6 +431,9 @@ diff --color -ruN gcc-rs/libgcc/config/sh/crt1.S gcc-rs-kos/libgcc/config/sh/crt
 +	! Program can return here (not likely) or jump here directly
 +	! from anywhere in it to go straight back to the monitor
 +_arch_real_exit:
++	! Save exit code parameter to r8
++	mov r4, r8
++
 +	! Reset SR
 +	mov.l	old_sr,r0
 +	ldc	r0,sr
@@ -722,6 +725,8 @@ diff --color -ruN gcc-rs/libgcc/config/sh/crt1.S gcc-rs-kos/libgcc/config/sh/crt
 -	mov	r14,r15
 -	mov.l	@r15+,r14
 -	rts	
++	! Move saved exit code to be used as exit syscall parameter
++	mov r8, r5
 +	jsr	@r0
 +	mov	#15,r4
 +
@@ -963,7 +968,7 @@ diff --color -ruN gcc-rs/libgcc/config/sh/crt1.S gcc-rs-kos/libgcc/config/sh/crt
 +	.word	0x092d
 diff --color -ruN gcc-rs/libgcc/config/sh/fake-kos.S gcc-rs-kos/libgcc/config/sh/fake-kos.S
 --- gcc-rs/libgcc/config/sh/fake-kos.S	1969-12-31 18:00:00.000000000 -0600
-+++ gcc-rs-kos/libgcc/config/sh/fake-kos.S	2023-04-26 13:39:59.205211934 -0500
++++ gcc-rs-kos/libgcc/config/sh/fake-kos.S	2023-05-02 12:15:05.587109083 -0500
 @@ -0,0 +1,78 @@
 +! Weakly linked symbols used to get GCC to hopefully compile itself properly.
 +! These will be replaced by the real symbols in actual compiled programs.
@@ -1045,7 +1050,7 @@ diff --color -ruN gcc-rs/libgcc/config/sh/fake-kos.S gcc-rs-kos/libgcc/config/sh
 +    mov     #-1, r0
 diff --color -ruN gcc-rs/libgcc/config/sh/gthr-kos.h gcc-rs-kos/libgcc/config/sh/gthr-kos.h
 --- gcc-rs/libgcc/config/sh/gthr-kos.h	1969-12-31 18:00:00.000000000 -0600
-+++ gcc-rs-kos/libgcc/config/sh/gthr-kos.h	2023-04-26 13:39:59.205211934 -0500
++++ gcc-rs-kos/libgcc/config/sh/gthr-kos.h	2023-05-02 12:15:05.588109085 -0500
 @@ -0,0 +1,401 @@
 +/* Copyright (C) 2009, 2010, 2011, 2012, 2020 Lawrence Sebald */
 +
@@ -1449,8 +1454,8 @@ diff --color -ruN gcc-rs/libgcc/config/sh/gthr-kos.h gcc-rs-kos/libgcc/config/sh
 +
 +#endif /* ! GCC_GTHR_KOS_H */
 diff --color -ruN gcc-rs/libgcc/config/sh/t-sh gcc-rs-kos/libgcc/config/sh/t-sh
---- gcc-rs/libgcc/config/sh/t-sh	2023-04-26 13:40:49.454341165 -0500
-+++ gcc-rs-kos/libgcc/config/sh/t-sh	2023-04-26 13:39:59.206211936 -0500
+--- gcc-rs/libgcc/config/sh/t-sh	2023-05-02 12:15:33.958165971 -0500
++++ gcc-rs-kos/libgcc/config/sh/t-sh	2023-05-02 12:15:05.588109085 -0500
 @@ -23,6 +23,8 @@
    $(LIB1ASMFUNCS_CACHE)
  LIB1ASMFUNCS_CACHE = _ic_invalidate _ic_invalidate_array
@@ -1461,8 +1466,8 @@ diff --color -ruN gcc-rs/libgcc/config/sh/t-sh gcc-rs-kos/libgcc/config/sh/t-sh
  	$(gcc_compile) -c $<
  
 diff --color -ruN gcc-rs/libgcc/configure gcc-rs-kos/libgcc/configure
---- gcc-rs/libgcc/configure	2023-04-26 13:40:49.458341175 -0500
-+++ gcc-rs-kos/libgcc/configure	2023-04-26 13:39:59.206211936 -0500
+--- gcc-rs/libgcc/configure	2023-05-02 12:15:33.963165981 -0500
++++ gcc-rs-kos/libgcc/configure	2023-05-02 12:15:05.588109085 -0500
 @@ -5699,6 +5699,7 @@
      tpf)	thread_header=config/s390/gthr-tpf.h ;;
      vxworks)	thread_header=config/gthr-vxworks.h ;;
@@ -1472,8 +1477,8 @@ diff --color -ruN gcc-rs/libgcc/configure gcc-rs-kos/libgcc/configure
  esac
  
 diff --color -ruN gcc-rs/libobjc/configure gcc-rs-kos/libobjc/configure
---- gcc-rs/libobjc/configure	2023-04-26 13:40:49.798342050 -0500
-+++ gcc-rs-kos/libobjc/configure	2023-04-26 13:39:59.207211939 -0500
+--- gcc-rs/libobjc/configure	2023-05-02 12:15:34.303166663 -0500
++++ gcc-rs-kos/libobjc/configure	2023-05-02 12:15:05.589109087 -0500
 @@ -2918,11 +2918,9 @@
  
  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
@@ -1487,8 +1492,8 @@ diff --color -ruN gcc-rs/libobjc/configure gcc-rs-kos/libobjc/configure
    return 0;
  }
 diff --color -ruN gcc-rs/libstdc++-v3/config/cpu/sh/atomicity.h gcc-rs-kos/libstdc++-v3/config/cpu/sh/atomicity.h
---- gcc-rs/libstdc++-v3/config/cpu/sh/atomicity.h	2023-04-26 13:40:49.882342266 -0500
-+++ gcc-rs-kos/libstdc++-v3/config/cpu/sh/atomicity.h	2023-04-26 13:39:59.207211939 -0500
+--- gcc-rs/libstdc++-v3/config/cpu/sh/atomicity.h	2023-05-02 12:15:34.368166793 -0500
++++ gcc-rs-kos/libstdc++-v3/config/cpu/sh/atomicity.h	2023-05-02 12:15:05.589109087 -0500
 @@ -22,14 +22,40 @@
  // see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
  // <http://www.gnu.org/licenses/>.
@@ -1540,8 +1545,8 @@ diff --color -ruN gcc-rs/libstdc++-v3/config/cpu/sh/atomicity.h gcc-rs-kos/libst
 +_GLIBCXX_END_NAMESPACE_VERSION
 +} // namespace
 diff --color -ruN gcc-rs/libstdc++-v3/configure gcc-rs-kos/libstdc++-v3/configure
---- gcc-rs/libstdc++-v3/configure	2023-04-26 13:40:49.888342281 -0500
-+++ gcc-rs-kos/libstdc++-v3/configure	2023-04-26 13:39:59.210211947 -0500
+--- gcc-rs/libstdc++-v3/configure	2023-05-02 12:15:34.373166803 -0500
++++ gcc-rs-kos/libstdc++-v3/configure	2023-05-02 12:15:05.593109095 -0500
 @@ -15809,6 +15809,7 @@
      tpf)	thread_header=config/s390/gthr-tpf.h ;;
      vxworks)	thread_header=config/gthr-vxworks.h ;;
