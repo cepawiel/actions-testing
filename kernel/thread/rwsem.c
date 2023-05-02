@@ -14,7 +14,7 @@
 #include <kos/genwait.h>
 
 /* Allocate a new reader/writer semaphore */
-rw_semaphore_t *rwsem_create() {
+rw_semaphore_t *rwsem_create(void) {
     rw_semaphore_t *s;
 
     dbglog(DBG_WARNING, "Creating reader/writer semaphore with deprecated "
@@ -266,7 +266,7 @@ int rwsem_read_trylock(rw_semaphore_t *s) {
     int old, rv;
 
     old = irq_disable();
-    
+
     if(s->initialized != 1 && s->initialized != 2) {
         rv = -1;
         errno = EINVAL;

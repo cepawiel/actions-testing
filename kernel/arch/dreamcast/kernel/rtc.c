@@ -27,6 +27,7 @@
 #include <arch/rtc.h>
 #include <arch/timer.h>
 #include <dc/g2bus.h>
+#include <stdint.h>
 
 #define RTC_UNIX_EPOCH_DELTA    631152000   /* Twenty years in seconds */
 #define RTC_RETRY_COUNT         3           /* # of times to repeat on bad access */
@@ -80,7 +81,7 @@ int rtc_set_unix_secs(time_t secs) {
 
     /* Try 3 times to ensure we didn't write a value then have 
        the clock increment itself before the next. */
-    for(i = 0; i < RTC_RETRY_COUNT; i++) { 
+    for(i = 0; i < RTC_RETRY_COUNT; i++) {
         /* Write the least-significant 16-bits first, because 
            writing to the high 16-bits will lock RTC writes. */
         g2_write_32(RTC_TIMESTAMP_LOW_ADDR, (adjusted) & 0xffff);
