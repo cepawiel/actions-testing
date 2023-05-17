@@ -20,7 +20,7 @@
 ###############################################################################
 ###############################################################################
 ### THIS CONFIG IS FOR AN EXPERIMENTAL VERSION OF GCC!
-## THERE ARE KNOWN ISSUES BUILDING THIS VERSION as of 2023-04-26.
+## THERE ARE KNOWN ISSUES BUILDING THIS VERSION as of 2023-05-17.
 ## Issue #1 -- See line 123.
 ## Issue #2 -- Newlib errors occur when attempting to build raw toolchain
 ##             without KOS patches. No known workaround at this time.

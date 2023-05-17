@@ -1,6 +1,6 @@
 diff --color -ruN gcc-rs/gcc/config/sh/sh-c.cc gcc-rs-kos/gcc/config/sh/sh-c.cc
---- gcc-rs/gcc/config/sh/sh-c.cc	2023-05-02 12:15:35.035168131 -0500
-+++ gcc-rs-kos/gcc/config/sh/sh-c.cc	2023-05-02 12:15:05.585109079 -0500
+--- gcc-rs/gcc/config/sh/sh-c.cc	2023-05-17 10:40:33.140260503 -0500
++++ gcc-rs-kos/gcc/config/sh/sh-c.cc	2023-05-17 10:40:35.999266672 -0500
 @@ -141,4 +141,11 @@
  
    cpp_define_formatted (pfile, "__SH_ATOMIC_MODEL_%s__",
@@ -14,8 +14,8 @@ diff --color -ruN gcc-rs/gcc/config/sh/sh-c.cc gcc-rs-kos/gcc/config/sh/sh-c.cc
 +  builtin_define ("__KOS_GCC_32MB__");
  }
 diff --color -ruN gcc-rs/gcc/configure gcc-rs-kos/gcc/configure
---- gcc-rs/gcc/configure	2023-05-02 12:15:35.041168143 -0500
-+++ gcc-rs-kos/gcc/configure	2023-05-02 12:15:05.587109083 -0500
+--- gcc-rs/gcc/configure	2023-05-17 10:40:30.057253850 -0500
++++ gcc-rs-kos/gcc/configure	2023-05-17 10:40:36.001266677 -0500
 @@ -13015,7 +13015,7 @@
      target_thread_file='single'
      ;;
@@ -26,9 +26,9 @@ diff --color -ruN gcc-rs/gcc/configure gcc-rs-kos/gcc/configure
      ;;
    *)
 diff --color -ruN gcc-rs/libgcc/config/sh/crt1.S gcc-rs-kos/libgcc/config/sh/crt1.S
---- gcc-rs/libgcc/config/sh/crt1.S	2023-05-02 12:15:33.957165969 -0500
-+++ gcc-rs-kos/libgcc/config/sh/crt1.S	2023-05-02 12:15:15.086128130 -0500
-@@ -1,724 +1,230 @@
+--- gcc-rs/libgcc/config/sh/crt1.S	2023-05-17 10:40:29.180251957 -0500
++++ gcc-rs-kos/libgcc/config/sh/crt1.S	2023-05-17 10:40:42.849281454 -0500
+@@ -1,724 +1,236 @@
 -/* Copyright (C) 2000-2023 Free Software Foundation, Inc.
 -   This file was pretty much copied from newlib.
 +! KallistiOS ##version##
@@ -52,7 +52,9 @@ diff --color -ruN gcc-rs/libgcc/config/sh/crt1.S gcc-rs-kos/libgcc/config/sh/crt
 +.globl __arch_mem_top
  
 -This file is part of GCC.
--
++.weak   _arch_stack_16m
++.weak   _arch_stack_32m
+ 
 -GCC is free software; you can redistribute it and/or modify it
 -under the terms of the GNU General Public License as published by the
 -Free Software Foundation; either version 3, or (at your option) any
@@ -249,6 +251,7 @@ diff --color -ruN gcc-rs/libgcc/config/sh/crt1.S gcc-rs-kos/libgcc/config/sh/crt
 +	mov.l	old_stack_addr,r0
 +	mov.l	r15,@r0
 +	mov.l   new_stack_16m,r15
++	mov.l	@r15,r15
 +
 +	! Check if 0xadffffff is a mirror of 0xacffffff, or if unique
 +	! If unique, then memory is 32MB instead of 16MB, and we must
@@ -259,6 +262,7 @@ diff --color -ruN gcc-rs/libgcc/config/sh/crt1.S gcc-rs-kos/libgcc/config/sh/crt
 +	mov	#0xba,r1
 +	mov.b	r1,@-r2			! Store 0xba to 0xacffffff
 +	mov.l	new_stack_32m,r1
++	mov.l	@r1,r1
 +	or	r0,r1
 +	mov	#0xab,r0
 +	mov.b	r0,@-r1			! Store 0xab in 0xadffffff
@@ -267,6 +271,7 @@ diff --color -ruN gcc-rs/libgcc/config/sh/crt1.S gcc-rs-kos/libgcc/config/sh/crt
 +	cmp/eq	r0,r1			! Check if values match
 +	bt	memchk_done		! If so, mirror - we're done, move on
 +	mov.l	new_stack_32m,r15	! If not, unique - set higher stack
++	mov.l	@r15,r15
 +memchk_done:
 +	mov.l	mem_top_addr,r0
 +	mov.l	r15,@r0			! Save address of top of memory
@@ -943,9 +948,9 @@ diff --color -ruN gcc-rs/libgcc/config/sh/crt1.S gcc-rs-kos/libgcc/config/sh/crt
 +mem_top_addr:
 +	.long	__arch_mem_top
 +new_stack_16m:
-+	.long	0x8d000000
++	.long	_arch_stack_16m
 +new_stack_32m:
-+	.long	0x8e000000
++	.long	_arch_stack_32m
 +p2_mask:
 +	.long	0xa0000000
 +setup_cache_addr:
@@ -968,7 +973,7 @@ diff --color -ruN gcc-rs/libgcc/config/sh/crt1.S gcc-rs-kos/libgcc/config/sh/crt
 +	.word	0x092d
 diff --color -ruN gcc-rs/libgcc/config/sh/fake-kos.S gcc-rs-kos/libgcc/config/sh/fake-kos.S
 --- gcc-rs/libgcc/config/sh/fake-kos.S	1969-12-31 18:00:00.000000000 -0600
-+++ gcc-rs-kos/libgcc/config/sh/fake-kos.S	2023-05-02 12:15:05.587109083 -0500
++++ gcc-rs-kos/libgcc/config/sh/fake-kos.S	2023-05-17 10:40:36.002266679 -0500
 @@ -0,0 +1,78 @@
 +! Weakly linked symbols used to get GCC to hopefully compile itself properly.
 +! These will be replaced by the real symbols in actual compiled programs.
@@ -1050,7 +1055,7 @@ diff --color -ruN gcc-rs/libgcc/config/sh/fake-kos.S gcc-rs-kos/libgcc/config/sh
 +    mov     #-1, r0
 diff --color -ruN gcc-rs/libgcc/config/sh/gthr-kos.h gcc-rs-kos/libgcc/config/sh/gthr-kos.h
 --- gcc-rs/libgcc/config/sh/gthr-kos.h	1969-12-31 18:00:00.000000000 -0600
-+++ gcc-rs-kos/libgcc/config/sh/gthr-kos.h	2023-05-02 12:15:05.588109085 -0500
++++ gcc-rs-kos/libgcc/config/sh/gthr-kos.h	2023-05-17 10:40:36.002266679 -0500
 @@ -0,0 +1,401 @@
 +/* Copyright (C) 2009, 2010, 2011, 2012, 2020 Lawrence Sebald */
 +
@@ -1454,8 +1459,8 @@ diff --color -ruN gcc-rs/libgcc/config/sh/gthr-kos.h gcc-rs-kos/libgcc/config/sh
 +
 +#endif /* ! GCC_GTHR_KOS_H */
 diff --color -ruN gcc-rs/libgcc/config/sh/t-sh gcc-rs-kos/libgcc/config/sh/t-sh
---- gcc-rs/libgcc/config/sh/t-sh	2023-05-02 12:15:33.958165971 -0500
-+++ gcc-rs-kos/libgcc/config/sh/t-sh	2023-05-02 12:15:05.588109085 -0500
+--- gcc-rs/libgcc/config/sh/t-sh	2023-05-17 10:40:29.181251959 -0500
++++ gcc-rs-kos/libgcc/config/sh/t-sh	2023-05-17 10:40:36.002266679 -0500
 @@ -23,6 +23,8 @@
    $(LIB1ASMFUNCS_CACHE)
  LIB1ASMFUNCS_CACHE = _ic_invalidate _ic_invalidate_array
@@ -1466,8 +1471,8 @@ diff --color -ruN gcc-rs/libgcc/config/sh/t-sh gcc-rs-kos/libgcc/config/sh/t-sh
  	$(gcc_compile) -c $<
  
 diff --color -ruN gcc-rs/libgcc/configure gcc-rs-kos/libgcc/configure
---- gcc-rs/libgcc/configure	2023-05-02 12:15:33.963165981 -0500
-+++ gcc-rs-kos/libgcc/configure	2023-05-02 12:15:05.588109085 -0500
+--- gcc-rs/libgcc/configure	2023-05-17 10:40:29.184251966 -0500
++++ gcc-rs-kos/libgcc/configure	2023-05-17 10:40:36.002266679 -0500
 @@ -5699,6 +5699,7 @@
      tpf)	thread_header=config/s390/gthr-tpf.h ;;
      vxworks)	thread_header=config/gthr-vxworks.h ;;
@@ -1477,8 +1482,8 @@ diff --color -ruN gcc-rs/libgcc/configure gcc-rs-kos/libgcc/configure
  esac
  
 diff --color -ruN gcc-rs/libobjc/configure gcc-rs-kos/libobjc/configure
---- gcc-rs/libobjc/configure	2023-05-02 12:15:34.303166663 -0500
-+++ gcc-rs-kos/libobjc/configure	2023-05-02 12:15:05.589109087 -0500
+--- gcc-rs/libobjc/configure	2023-05-17 10:40:29.429252495 -0500
++++ gcc-rs-kos/libobjc/configure	2023-05-17 10:40:36.003266681 -0500
 @@ -2918,11 +2918,9 @@
  
  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
@@ -1492,8 +1497,8 @@ diff --color -ruN gcc-rs/libobjc/configure gcc-rs-kos/libobjc/configure
    return 0;
  }
 diff --color -ruN gcc-rs/libstdc++-v3/config/cpu/sh/atomicity.h gcc-rs-kos/libstdc++-v3/config/cpu/sh/atomicity.h
---- gcc-rs/libstdc++-v3/config/cpu/sh/atomicity.h	2023-05-02 12:15:34.368166793 -0500
-+++ gcc-rs-kos/libstdc++-v3/config/cpu/sh/atomicity.h	2023-05-02 12:15:05.589109087 -0500
+--- gcc-rs/libstdc++-v3/config/cpu/sh/atomicity.h	2023-05-17 10:40:29.496252639 -0500
++++ gcc-rs-kos/libstdc++-v3/config/cpu/sh/atomicity.h	2023-05-17 10:40:36.003266681 -0500
 @@ -22,14 +22,40 @@
  // see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
  // <http://www.gnu.org/licenses/>.
@@ -1545,8 +1550,8 @@ diff --color -ruN gcc-rs/libstdc++-v3/config/cpu/sh/atomicity.h gcc-rs-kos/libst
 +_GLIBCXX_END_NAMESPACE_VERSION
 +} // namespace
 diff --color -ruN gcc-rs/libstdc++-v3/configure gcc-rs-kos/libstdc++-v3/configure
---- gcc-rs/libstdc++-v3/configure	2023-05-02 12:15:34.373166803 -0500
-+++ gcc-rs-kos/libstdc++-v3/configure	2023-05-02 12:15:05.593109095 -0500
+--- gcc-rs/libstdc++-v3/configure	2023-05-17 10:40:29.501252650 -0500
++++ gcc-rs-kos/libstdc++-v3/configure	2023-05-17 10:40:36.007266690 -0500
 @@ -15809,6 +15809,7 @@
      tpf)	thread_header=config/s390/gthr-tpf.h ;;
      vxworks)	thread_header=config/gthr-vxworks.h ;;

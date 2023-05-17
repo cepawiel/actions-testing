@@ -9,10 +9,10 @@ This toolchain development/playground branch contains the following toolchain co
 | config.mk.9.3.0-modern.sample | 9.3.0 | 4.3.0 | 2.40 | 8.5.0 | 2.40 | |
 | config.mk.10.4.0.sample | 10.4.0 | 4.3.0 | 2.40 | 8.5.0 | 2.40 | |
 | config.mk.11.3.0.sample | 11.3.0 | 4.3.0 | 2.40 | 8.5.0 | 2.40 | |
-| config.mk.12.2.0.sample | 12.2.0 | 4.3.0 | 2.40 | 8.5.0 | 2.40 | (former "testing configuration) |
+| config.mk.12.2.0.sample | 12.2.0 | 4.3.0 | 2.40 | 8.5.0 | 2.40 | (former "testing" configuration) |
 | config.mk.12.3.0.sample | 12.3.0 | 4.3.0 | 2.40 | 8.5.0 | 2.40 | |
 | config.mk.13.1.0.sample | 13.1.0 | 4.3.0 | 2.40 | 8.5.0 | 2.40 | "testing" configuration |
-| config.mk.devel.sample | master | 4.3.0 | 2.40 | 8.5.0 | 2.40 | master branch containing 14.0.0<br />builds as of 2023-05-02 |
+| config.mk.devel.sample | master | 4.3.0 | 2.40 | 8.5.0 | 2.40 | master branch containing 14.0.0<br />builds as of 2023-05-17 |
 | config.mk.gccrs.sample | master | 4.3.0 | 2.40 | 8.5.0 | 2.40 | gccrs master branch for latest Rust support<br />builds with workaround as of 2023-05-02<br />read config file for details |
 
 Toolchains are primarily targeted towards Linux and may not compile on macOS or Windows without additional patching.
