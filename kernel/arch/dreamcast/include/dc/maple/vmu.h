@@ -180,7 +180,7 @@ typedef uint8_t vmu_cond_t;
 typedef vmu_cond_t vmu_state_t;
 
 void vmu_set_buttons_enabled(maple_device_t * dev, int enable);
-int vmu_get_buttons_enabled();
+int vmu_get_buttons_enabled(void);
 
 /* \cond */
 /* Init / Shutdown */
