@@ -21,7 +21,7 @@
 ###############################################################################
 ### THIS CONFIG IS FOR AN EXPERIMENTAL VERSION OF GCC!
 ## THERE ARE KNOWN ISSUES BUILDING THIS VERSION as of 2023-05-17.
-## Issue #1 -- See line 123.
+## Issue #1 -- See line 121.
 ## Issue #2 -- Newlib errors occur when attempting to build raw toolchain
 ##             without KOS patches. No known workaround at this time.
 ###############################################################################
@@ -32,7 +32,6 @@ sh_binutils_ver=2.40
 sh_gcc_ver=rs
 newlib_ver=4.3.0.20230120
 gdb_ver=13.1
-insight_ver=6.8-1
 
 # Tarball extensions to download for SH
 sh_binutils_download_type=xz
@@ -41,7 +40,6 @@ sh_gcc_git_repo=https://github.com/Rust-GCC/gccrs.git
 sh_gcc_git_branch=master
 newlib_download_type=gz
 gdb_download_type=xz
-insight_download_type=bz2
 
 # Toolchain for ARM
 # The ARM version of binutils/gcc is separated out as the particular CPU
