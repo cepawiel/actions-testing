@@ -3,6 +3,14 @@
    vmu.c
    Copyright (C)2002,2003 Megan Potter
    Copyright (C)2008 Donald Haase
+   Copyright (C)2023 Falco Girgis
+ */
+
+/*
+   This module deals with the VMU.  It provides functionality for
+   filesystem, LCD screen, buzzer, and date/time access.
+
+   Thanks to Marcus Comstedt for VMU/Maple information.
  */
 
 #include <assert.h>
@@ -16,12 +24,7 @@
 #include <dc/vmufs.h>
 #include <arch/timer.h>
 
-/*
-   This module deals with the VMU.  It provides functionality for
-   filesystem, LCD screen, buzzer, and date/time access.
-
-   Thanks to Marcus Comstedt for VMU/Maple information.
- */
+#define VMU_BLOCK_WRITE_RETRY_TIME  100     /* time to sleep until retrying a failed write */
 
 static int vmu_attach(maple_driver_t *drv, maple_device_t *dev) {
     (void)drv;
@@ -31,7 +34,7 @@ static int vmu_attach(maple_driver_t *drv, maple_device_t *dev) {
 
 static void vmu_poll_reply(maple_frame_t* frm) { 
     maple_response_t   *resp;
-    uint32             *respbuf;
+    uint32_t           *respbuf;
     vmu_cond_t         *raw;
     vmu_state_t        *cooked;
 
@@ -44,7 +47,7 @@ static void vmu_poll_reply(maple_frame_t* frm) {
     if(resp->response != MAPLE_RESPONSE_DATATRF)
         return;
 
-    respbuf = (uint32 *)resp->data;
+    respbuf = (uint32_t *)resp->data;
 
     if(respbuf[0] != MAPLE_FUNC_CLOCK)
         return;
@@ -64,7 +67,7 @@ static void vmu_poll_reply(maple_frame_t* frm) {
 }
 
 static int vmu_poll(maple_device_t *dev) {
-    uint32 * send_buf;
+    uint32_t *send_buf;
 
     /* Only query for button input on the front VMU of each controller. */
     if(dev->unit == 1) {
@@ -73,7 +76,7 @@ static int vmu_poll(maple_device_t *dev) {
             return 0;
 
         maple_frame_init(&dev->frame);
-        send_buf = (uint32 *)dev->frame.recv_buf;
+        send_buf = (uint32_t *)dev->frame.recv_buf;
         send_buf[0] = MAPLE_FUNC_CLOCK;
         dev->frame.cmd = MAPLE_COMMAND_GETCOND;
         dev->frame.dst_port = dev->port;
@@ -113,7 +116,7 @@ void vmu_shutdown(void) {
 }
 
 /* Dynamically add the periodic polling callback to the driver when button input is enabled. */
-void vmu_set_buttons_enabled(maple_device_t * dev, int enable) {
+void vmu_set_buttons_enabled(maple_device_t *dev, int enable) {
     vmu_drv.periodic = enable ? vmu_periodic : NULL;
 }
 
@@ -122,7 +125,7 @@ int vmu_get_buttons_enabled(void) {
     return !!vmu_drv.periodic;
 }
 
-int vmu_use_custom_color(maple_device_t * dev, int enable) {
+int vmu_use_custom_color(maple_device_t *dev, int enable) {
     vmu_root_t root;
 
     if(vmufs_root_read(dev, &root) < 0)
@@ -139,7 +142,7 @@ int vmu_use_custom_color(maple_device_t * dev, int enable) {
 
 /* The custom color is used while navigating the Dreamcast's file manager.
    You set the RGBA parameters, each with valid range of 0-255 */
-int vmu_set_custom_color(maple_device_t *dev, uint8 red, uint8 green, uint8 blue, uint8 alpha) {
+int vmu_set_custom_color(maple_device_t *dev, uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) {
     vmu_root_t root;
 
     if(vmufs_root_read(dev, &root) < 0)
@@ -161,7 +164,7 @@ int vmu_set_custom_color(maple_device_t *dev, uint8 red, uint8 green, uint8 blue
 /* The icon shape is used while navigating the BIOS menu. The values
    for icon_shape are listed in the biosfont.h and start with
    BFONT_ICON_VMUICON. */
-int vmu_set_icon_shape(maple_device_t *dev, uint8 icon_shape) {
+int vmu_set_icon_shape(maple_device_t *dev, uint8_t icon_shape) {
 #ifdef _arch_sub_naomi
     vmu_root_t root;
 
@@ -191,7 +194,7 @@ int vmu_set_icon_shape(maple_device_t *dev, uint8 icon_shape) {
    can stay the same */
 
 /* Callback that unlocks the frame, general use */
-static void vmu_gen_callback(maple_frame_t * frame) {
+static void vmu_gen_callback(maple_frame_t *frame) {
     /* Unlock the frame for the next usage */
     maple_frame_unlock(frame);
 
@@ -204,8 +207,8 @@ static void vmu_gen_callback(maple_frame_t * frame) {
    except that the last byte must be larger than the second
    to last byte. This might necessitate refactoring as the
    clock is a seperate device from the screen and storage. */
-int vmu_beep_raw(maple_device_t * dev, uint32 beep) {
-    uint32 *    send_buf;
+int vmu_beep_raw(maple_device_t *dev, uint32_t beep) {
+    uint32 *send_buf;
 
     assert(dev != NULL);
 
@@ -215,7 +218,7 @@ int vmu_beep_raw(maple_device_t * dev, uint32 beep) {
 
     /* Reset the frame */
     maple_frame_init(&dev->frame);
-    send_buf = (uint32 *)dev->frame.recv_buf;
+    send_buf = (uint32_t *)dev->frame.recv_buf;
     send_buf[0] = MAPLE_FUNC_CLOCK;
     send_buf[1] = beep;
     dev->frame.cmd = MAPLE_COMMAND_SETCOND;
@@ -247,8 +250,8 @@ int vmu_beep(maple_device_t *dev, uint8_t period, uint8_t pulseWidth) {
 
 /* Draw a 1-bit bitmap on the LCD screen (48x32). return a -1 if
    an error occurs */
-int vmu_draw_lcd(maple_device_t * dev, void *bitmap) {
-    uint32 *    send_buf;
+int vmu_draw_lcd(maple_device_t *dev, void *bitmap) {
+    uint32_t *send_buf;
 
     assert(dev != NULL);
 
@@ -258,14 +261,14 @@ int vmu_draw_lcd(maple_device_t * dev, void *bitmap) {
 
     /* Reset the frame */
     maple_frame_init(&dev->frame);
-    send_buf = (uint32 *)dev->frame.recv_buf;
+    send_buf = (uint32_t*)dev->frame.recv_buf;
     send_buf[0] = MAPLE_FUNC_LCD;
     send_buf[1] = 0;    /* Block / phase / partition */
-    memcpy(send_buf + 2, bitmap, 48 * 4);
+    memcpy(send_buf + 2, bitmap, VMU_SCREEN_WIDTH * 4);
     dev->frame.cmd = MAPLE_COMMAND_BWRITE;
     dev->frame.dst_port = dev->port;
     dev->frame.dst_unit = dev->unit;
-    dev->frame.length = 2 + 48;
+    dev->frame.length = 2 + VMU_SCREEN_WIDTH;
     dev->frame.callback = vmu_gen_callback;
     dev->frame.send_buf = send_buf;
     maple_queue_frame(&dev->frame);
@@ -286,27 +289,42 @@ int vmu_draw_lcd(maple_device_t * dev, void *bitmap) {
 
 /* This function converts a xbm image to a 1-bit bitmap that can
    be displayed on LCD screen of VMU */
-static void vmu_xbm_to_bitmap(uint8 *bitmap, const char *vmu_icon) {
+static void vmu_xbm_to_bitmap(uint8_t *bitmap, const char *vmu_icon) {
     int x, y, xi, xb;
-    memset(bitmap, 0, 48 * 32 / 8);
+    memset(bitmap, 0, VMU_SCREEN_WIDTH * VMU_SCREEN_HEIGHT / 8);
 
     if(vmu_icon) {
-        for(y = 0; y < 32; y++)
-            for(x = 0; x < 48; x++) {
+        for(y = 0; y < VMU_SCREEN_HEIGHT; y++)
+            for(x = 0; x < VMU_SCREEN_WIDTH; x++) {
                 xi = x / 8;
                 xb = 0x80 >> (x % 8);
 
-                if(vmu_icon[(31 - y) * 48 + (47 - x)] == '.')
-                    bitmap[y * (48 / 8) + xi] |= xb;
+                if(vmu_icon[((VMU_SCREEN_HEIGHT - 1) - y) * VMU_SCREEN_WIDTH 
+                          + ((VMU_SCREEN_WIDTH  - 1) - x)] == '.')
+                    bitmap[y * (VMU_SCREEN_WIDTH / 8) + xi] |= xb;
             }
     }
 }
 
-int vmu_draw_lcd_xbm(maple_device_t * dev, const char *vmu_icon) {
-    uint8   bitmap[48 * 32 / 8];
+int vmu_draw_lcd_xbm(maple_device_t *dev, const char *vmu_icon) {
+    uint8_t  bitmap[VMU_SCREEN_WIDTH * VMU_SCREEN_HEIGHT / 8];
     vmu_xbm_to_bitmap(bitmap, vmu_icon);
 
     return vmu_draw_lcd(dev, bitmap);
+}
+
+/* Utility function which sets the icon on all available VMUs
+   from an Xwindows XBM. Imported from libdcutils. */
+void vmu_set_icon(const char *vmu_icon) {
+    int             i = 0;
+    maple_device_t* dev;
+    uint8_t   bitmap[VMU_SCREEN_WIDTH * VMU_SCREEN_HEIGHT / 8];
+
+    vmu_xbm_to_bitmap(bitmap, vmu_icon);
+
+    while((dev = maple_enum_type(i++, MAPLE_FUNC_LCD))) {
+        vmu_draw_lcd(dev, bitmap);
+    }
 }
 
 /* Read the data in block blocknum into buffer, return a -1
@@ -317,11 +335,11 @@ static void vmu_block_read_callback(maple_frame_t *frm) {
     genwait_wake_all(frm);
 }
 
-int vmu_block_read(maple_device_t * dev, uint16 blocknum, uint8 *buffer) {
-    maple_response_t    *resp;
-    int         rv;
-    uint32          *send_buf;
-    uint32          blkid;
+int vmu_block_read(maple_device_t *dev, uint16_t blocknum, uint8_t *buffer) {
+    maple_response_t *resp;
+    int              rv;
+    uint32_t         *send_buf;
+    uint32_t         blkid;
 
     assert(dev != NULL);
 
@@ -334,7 +352,7 @@ int vmu_block_read(maple_device_t * dev, uint16 blocknum, uint8 *buffer) {
 
     /* Reset the frame */
     maple_frame_init(&dev->frame);
-    send_buf = (uint32 *)dev->frame.recv_buf;
+    send_buf = (uint32_t *)dev->frame.recv_buf;
     send_buf[0] = MAPLE_FUNC_MEMCARD;
     send_buf[1] = blkid;
     dev->frame.cmd = MAPLE_COMMAND_BREAD;
@@ -365,7 +383,7 @@ int vmu_block_read(maple_device_t * dev, uint16 blocknum, uint8 *buffer) {
 
     /* Copy out the response */
     resp = (maple_response_t *)dev->frame.recv_buf;
-    send_buf = (uint32 *)resp->data;
+    send_buf = (uint32_t *)resp->data;
 
     if(resp->response != MAPLE_RESPONSE_DATATRF
             || send_buf[0] != MAPLE_FUNC_MEMCARD
@@ -393,11 +411,11 @@ static void vmu_block_write_callback(maple_frame_t *frm) {
     /* Wakey, wakey! */
     genwait_wake_all(frm);
 }
-static int vmu_block_write_internal(maple_device_t * dev, uint16 blocknum, uint8 *buffer) {
-    maple_response_t    *resp;
-    int         rv, phase, r;
-    uint32          *send_buf;
-    uint32          blkid;
+static int vmu_block_write_internal(maple_device_t * dev, uint16_t blocknum, const uint8_t *buffer) {
+    maple_response_t *resp;
+    int              rv, phase, r;
+    uint32_t         *send_buf;
+    uint32_t         blkid;
 
     assert(dev != NULL);
 
@@ -417,7 +435,7 @@ static int vmu_block_write_internal(maple_device_t * dev, uint16 blocknum, uint8
 
         /* Reset the frame */
         maple_frame_init(&dev->frame);
-        send_buf = (uint32 *)dev->frame.recv_buf;
+        send_buf = (uint32_t *)dev->frame.recv_buf;
         send_buf[0] = MAPLE_FUNC_MEMCARD;
         send_buf[1] = blkid;
         memcpy(send_buf + 2, buffer + 128 * phase, 128);
@@ -461,7 +479,7 @@ static int vmu_block_write_internal(maple_device_t * dev, uint16 blocknum, uint8
 
     /* Finally a "sync" command -- thanks Nagra */
     maple_frame_init(&dev->frame);
-    send_buf = (uint32 *)dev->frame.recv_buf;
+    send_buf = (uint32_t *)dev->frame.recv_buf;
     send_buf[0] = MAPLE_FUNC_MEMCARD;
     send_buf[1] = ((blocknum & 0xff) << 24)
                   | (((blocknum >> 8) & 0xff) << 16)
@@ -499,7 +517,7 @@ static int vmu_block_write_internal(maple_device_t * dev, uint16 blocknum, uint8
 
 /* Sometimes a flaky or stubborn card can be recovered by trying a couple
    of times... */
-int vmu_block_write(maple_device_t * dev, uint16 blocknum, uint8 *buffer) {
+int vmu_block_write(maple_device_t *dev, const uint16_t blocknum, const uint8_t *buffer) {
     int i, rv;
 
     for(i = 0; i < 4; i++) {
@@ -510,7 +528,7 @@ int vmu_block_write(maple_device_t * dev, uint16 blocknum, uint8 *buffer) {
             return rv;
 
         /* It failed -- wait a bit and try again. */
-        thd_sleep(100);
+        thd_sleep(VMU_BLOCK_WRITE_RETRY_TIME);
     }
 
     /* Well, looks like it's really toasty... return the most recent
@@ -518,22 +536,8 @@ int vmu_block_write(maple_device_t * dev, uint16 blocknum, uint8 *buffer) {
     return rv;
 }
 
-/* Utility function which sets the icon on all available VMUs
-   from an Xwindows XBM. Imported from libdcutils. */
-void vmu_set_icon(const char *vmu_icon) {
-    int i = 0;
-    maple_device_t * dev;
-    uint8   bitmap[48 * 32 / 8];
-
-    vmu_xbm_to_bitmap(bitmap, vmu_icon);
-
-    while((dev = maple_enum_type(i++, MAPLE_FUNC_LCD))) {
-        vmu_draw_lcd(dev, bitmap);
-    }
-}
-
-int vmu_set_time(maple_device_t * dev, vmu_time_t* time) {
-    uint32 *    send_buf;
+int vmu_set_datetime(maple_device_t *dev, time_t* time) {
+    uint32_t *send_buf;
 
     assert(dev != NULL);
 
@@ -543,7 +547,7 @@ int vmu_set_time(maple_device_t * dev, vmu_time_t* time) {
 
     /* Reset the frame */
     maple_frame_init(&dev->frame);
-    send_buf = (uint32 *)dev->frame.recv_buf;
+    send_buf = (uint32_t *)dev->frame.recv_buf;
     send_buf[0] = MAPLE_FUNC_CLOCK;
     memcpy(send_buf + 2, time, sizeof(vmu_time));
 
@@ -556,11 +560,11 @@ int vmu_set_time(maple_device_t * dev, vmu_time_t* time) {
     maple_queue_frame(&dev->frame);
 
     /* Wait for the timer to accept it */
-    if(genwait_wait(&dev->frame, "vmu_set_time", 500, NULL) < 0) {
+    if(genwait_wait(&dev->frame, "vmu_set_datetime", 500, NULL) < 0) {
         if(dev->frame.state != MAPLE_FRAME_VACANT)  {
             /* Something went wrong.... */
             dev->frame.state = MAPLE_FRAME_VACANT;
-            dbglog(DBG_ERROR, "vmu_set_time: timeout to unit %c%c\n",
+            dbglog(DBG_ERROR, "vmu_set_datetime: timeout to unit %c%c\n",
                    dev->port + 'A', dev->unit + '0');
             return MAPLE_ETIMEOUT;
         }
@@ -569,10 +573,10 @@ int vmu_set_time(maple_device_t * dev, vmu_time_t* time) {
     return MAPLE_EOK;
 }
 
-int vmu_get_time(maple_device_t * dev, vmu_time_t* time) {
+int vmu_get_datetime(maple_device_t *dev, time_t *time) {
     maple_response_t *resp;
     int               rv;
-    uint32           *send_buf;
+    uint32_t          *send_buf;
 
     assert(dev != NULL);
 
@@ -582,7 +586,7 @@ int vmu_get_time(maple_device_t * dev, vmu_time_t* time) {
 
     /* Reset the frame */
     maple_frame_init(&dev->frame);
-    send_buf = (uint32 *)dev->frame.recv_buf;
+    send_buf = (uint32_t *)dev->frame.recv_buf;
     send_buf[0] = MAPLE_FUNC_CLOCK;
 
     dev->frame.cmd = MAPLE_COMMAND_BREAD;
@@ -594,18 +598,18 @@ int vmu_get_time(maple_device_t * dev, vmu_time_t* time) {
     maple_queue_frame(&dev->frame);
 
     /* Wait for the VMU to accept it */
-    if(genwait_wait(&dev->frame, "vmu_get_time", 100, NULL) < 0) {
+    if(genwait_wait(&dev->frame, "vmu_get_datetime", 100, NULL) < 0) {
         if(dev->frame.state != MAPLE_FRAME_RESPONDED) {
             /* It's probably never coming back, so just unlock the frame */
             dev->frame.state = MAPLE_FRAME_VACANT;
-            dbglog(DBG_ERROR, "vmu_get_time: timeout to unit %c%c\n",
+            dbglog(DBG_ERROR, "vmu_get_datetime: timeout to unit %c%c\n",
                    dev->port + 'A', dev->unit + '0');
             return MAPLE_ETIMEOUT;
         }
     }
 
     if(dev->frame.state != MAPLE_FRAME_RESPONDED) {
-        dbglog(DBG_ERROR, "vmu_get_time: incorrect state for unit %c%c (%d)\n",
+        dbglog(DBG_ERROR, "vmu_get_datetime: incorrect state for unit %c%c (%d)\n",
                dev->port + 'A', dev->unit + '0', dev->frame.state);
         dev->frame.state = MAPLE_FRAME_VACANT;
         return MAPLE_EFAIL;
@@ -613,12 +617,12 @@ int vmu_get_time(maple_device_t * dev, vmu_time_t* time) {
 
     /* Copy out the response */
     resp = (maple_response_t *)dev->frame.recv_buf;
-    send_buf = (uint32 *)resp->data;
+    send_buf = (uint32_t *)resp->data;
 
     if(resp->response != MAPLE_RESPONSE_DATATRF
             || send_buf[0] != MAPLE_FUNC_CLOCK) {
         rv = MAPLE_EFAIL;
-        dbglog(DBG_ERROR, "vmu_get_time failed: %s(%d)/%08lx\r\n",
+        dbglog(DBG_ERROR, "vmu_get_datetime failed: %s(%d)/%08lx\r\n",
                maple_perror(resp->response), resp->response, send_buf[0]);
     }
     else {
