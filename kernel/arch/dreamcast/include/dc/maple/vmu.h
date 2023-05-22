@@ -78,15 +78,41 @@ int vmu_use_custom_color(maple_device_t *dev, int enable);
 
     \retval 0               On success
     \retval -1              On failure
+
+    \sa vmu_get_custom_color, vmu_use_custom_color
 */
 int vmu_set_custom_color(maple_device_t *dev, uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha);
 
+/** \brief  Get custom color of a VMU
+
+    This function gets the custom color of a specific VMU. This color is only
+    displayed in the Dreamcast's file manager. This function also returns whether
+    the custom color is currently enabled.
+
+    \param  dev             The device to change the color of.
+    \param  red             The red component. 0-255
+    \param  green           The green component. 0-255
+    \param  blue            The blue component. 0-255
+    \param  alpha           The alpha component. 0-255; 100-255 Recommended
+
+    \retval 1               On success: custom color is enabled
+    \retval 0               On success: custom color is disabled
+    \retval -1              On failure
+
+    \sa vmu_set_custom_color, vmu_use_custom_color
+*/
+int vmu_get_custom_color(maple_device_t *dev, uint8_t *red, uint8_t *green, uint8_t *blue, uint8_t *alpha);
+
 /** \brief  Set icon shape of a VMU
 
-    This function sets the icon shape of a specific VMU. The icon shape is a 
-    vmu icon that is displayed on the LCD screen while navigating the Dreamcast
-    BIOS menu and is the GUI representation of the VMU in the menu's file manager. 
+    This function sets the icon shape of a specific VMU. The icon shape is a
+    VMU icon that is displayed on the LCD screen while navigating the Dreamcast
+    BIOS menu and is the GUI representation of the VMU in the menu's file manager.
     The Dreamcast BIOS provides a set of 124 icons to choose from.
+
+    \note
+    When a custom file named "ICONDATA_VMS" is present on a VMU, it overrides this
+    icon by providing custom icons for both the DC BIOS menu and the VMU's LCD screen.
 
     \param  dev             The device to change the icon shape of.
     \param  icon_shape      One of the values found in \ref{vmu_icons}.
@@ -94,9 +120,30 @@ int vmu_set_custom_color(maple_device_t *dev, uint8_t red, uint8_t green, uint8_
     \retval 0               On success
     \retval -1              On failure
 
-    \sa vmu_icons
+    \sa vmu_icons, vmu_get_icon_shape
 */
 int vmu_set_icon_shape(maple_device_t *dev, uint8_t icon_shape);
+
+/** \brief  Get icon shape of a VMU
+
+    This function gets the icon shape of a specific VMU. The icon shape is a
+    VMU icon that is displayed on the LCD screen while navigating the Dreamcast
+    BIOS menu and is the GUI representation of the VMU in the menu's file manager.
+    The Dreamcast BIOS provides a set of 124 icons to choose from.
+
+    \note
+    When a custom file named "ICONDATA_VMS" is present on a VMU, it overrides this
+    icon by providing custom icons for both the DC BIOS menu and the VMU's LCD screen.
+
+    \param  dev             The device to change the icon shape of.
+    \param  icon_shape      One of the values found in \ref{vmu_icons}.
+
+    \retval 0               On success
+    \retval -1              On failure
+
+    \sa vmu_icons, vmu_set_icon_shape
+*/
+int vmu_get_icon_shape(maple_device_t *dev, uint8_t *icon_shape);
 
 /** \brief  Make a VMU beep.
 
@@ -125,7 +172,7 @@ int vmu_beep_raw(maple_device_t* dev, uint32_t beep) __attribute__((deprecated))
     is a square-wave configured with the following parameters:
 
                    Period
-            +--------------------+            
+            +--------------------+
             |                    |
                        __________            __________
                       |          |          |          |
@@ -152,7 +199,7 @@ int vmu_beep_raw(maple_device_t* dev, uint32_t beep) __attribute__((deprecated))
     \retval MAPLE_EAGAIN        If the command couldn't be sent. Try again later.
     \retval MAPLE_ETIMEOUT      If the command timed out while blocking.
 */
-int vmu_beep(maple_device_t *dev, uint8_t period, uint8_t inversePulseWidth);
+int vmu_beep_waveform(maple_device_t *dev, uint8_t period, uint8_t duty_cycle);
 
 /** \brief  Display a 1bpp bitmap on a VMU screen.
 
@@ -182,7 +229,7 @@ int vmu_draw_lcd(maple_device_t *dev, void *bitmap);
     \retval MAPLE_EAGAIN    If the command couldn't be sent. Try again later.
     \retval MAPLE_ETIMEOUT  If the command timed out while blocking.
 
-    \sa vmu_draw_lcd
+    \sa vmu_draw_lcd, vmu_set_icon
 */
 int vmu_draw_lcd_xbm(maple_device_t *dev, const char *vmu_icon);
 
@@ -195,13 +242,13 @@ int vmu_draw_lcd_xbm(maple_device_t *dev, const char *vmu_icon);
 
     \param  vmu_icon        The icon to set.
 
-    \sa vmu_draw_lcd
+    \sa vmu_draw_lcd_xbm
 */
 void vmu_set_icon(const char *vmu_icon);
 
 /** \brief  Read a block from a memory card.
 
-    This function reads a raw block from a memory card. 
+    This function reads a raw block from a memory card.
 
     \note
     You most likely will not ever use this directly, but rather will
@@ -239,26 +286,93 @@ int vmu_block_read(maple_device_t *dev, uint16_t blocknum, uint8_t *buffer);
 */
 int vmu_block_write(maple_device_t *dev, uint16_t blocknum, const uint8_t *buffer);
 
+/** \brief  Set the date and time on the VMU.
 
+    This function sets the VMU's date and time values to
+    the given standard C Unix timestamp.
+
+    \param  dev             The device to write to.
+    \param  time            Seconds since Unix epoch
+
+    \retval MAPLE_EOK       On success.
+    \retval MAPLE_ETIMEOUT  If the command timed out while blocking.
+    \retval MAPLE_EFAIL     On errors other than timeout.
+
+    \sa vmu_get_datetime
+*/
 int vmu_set_datetime(maple_device_t *dev, time_t time);
+
+/** \brief  Get the date and time on the VMU.
+
+    This function gets the VMU's date and time values,
+    as a single standard C Unix timestamp.
+
+    \note
+    This is the VMU equivalent of calling `time(NULL)`.
+
+    \param  dev             The device to write to.
+    \param  time            Seconds since Unix epoch
+
+    \retval MAPLE_EOK       On success.
+    \retval MAPLE_ETIMEOUT  If the command timed out while blocking.
+    \retval MAPLE_EFAIL     On errors other than timeout.
+
+    \sa vmu_set_datetime
+*/
 int vmu_get_datetime(maple_device_t *dev, time_t *time);
 
-/* VMU's button state/cond values, same as capability values */
-#define VMU_DPAD_UP    (1<<0)
-#define VMU_DPAD_DOWN  (1<<1)
-#define VMU_DPAD_LEFT  (2<<1)
-#define VMU_DPAD_RIGHT (3<<1)
-#define VMU_A          (4<<1)
-#define VMU_B          (5<<1)
-#define VMU_MODE       (6<<1)
-#define VMU_SLEEP      (7<<1)
+/** \defgroup vmu_buttons VMU Buttons
+    \brief    VMU button masks
+    \ingroup  vmu
 
-/* VMU's raw condition data: 0 = PRESSED, 1 = RELEASED */
+    VMU's button state/cond masks, same as capability masks
+
+    @{
+*/
+#define VMU_DPAD_UP    (1<<0)   /** \brief Up Dpad button on the VMU */
+#define VMU_DPAD_DOWN  (1<<1)   /** \brief Down Dpad button on the VMU */
+#define VMU_DPAD_LEFT  (2<<1)   /** \brief Left Dpad button on the VMU */
+#define VMU_DPAD_RIGHT (3<<1)   /** \brief Right Dpad button on the VMU */
+#define VMU_A          (4<<1)   /** \brief A button on the VMU */
+#define VMU_B          (5<<1)   /** \brief B Dpad button on the VMU */
+#define VMU_MODE       (6<<1)   /** \brief Mode button on the VMU */
+#define VMU_SLEEP      (7<<1)   /** \brief Sleep button on the VMU */
+/** @} */
+
+/** \brief VMU's raw condition data: 0 = PRESSED, 1 = RELEASED */
 typedef uint8_t vmu_cond_t;
-/* VMU's "civilized" state data: 0 = RELEASED, 1 = PRESSED */
+/** \brief  VMU's "civilized" state data: 0 = RELEASED, 1 = PRESSED */
 typedef vmu_cond_t vmu_state_t;
 
-void vmu_set_buttons_enabled(maple_device_t * dev, int enable);
+/** \brief  Enable/Disable polling for VMU input
+
+    This function is used to either enable or disable polling the
+    VMU buttons' states for input each frame.
+
+    \note
+    These buttons are not usually accessible to the player; however,
+    several devices, such as the ASCII pad, the arcade pad, and
+    the Retro Fighters controller leave the VMU partially exposed,
+    so that these buttons remain accessible, allowing them to be used
+    as extended controller inputs.
+
+    \note
+    Polling for VMU input is disabled by default.
+
+    \sa vmu_get_buttons_enabled
+*/
+void vmu_set_buttons_enabled(maple_device_t *dev, int enable);
+
+/** \brief  Check whether polling for VMU input has been enabled
+
+    This function is used to check whether per-frame polling of
+    the VMU's button states has been enabled in the driver.
+
+    \note
+    Polling for VMU input is disabled by default.
+
+    \sa vmu_set_buttons_enabled
+*/
 int vmu_get_buttons_enabled(void);
 
 /** @} */

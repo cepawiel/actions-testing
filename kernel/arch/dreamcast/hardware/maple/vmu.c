@@ -244,8 +244,8 @@ int vmu_beep_raw(maple_device_t *dev, uint32_t beep) {
 }
 
 int vmu_beep(maple_device_t *dev, uint8_t period, uint8_t pulseWidth) {
-    const uint32_t rawBeep = ((period << 24) | ((period - pulsewidth)) << 16);
-    return vmu_beep_raw(dev, rawBeep);
+    const uint32_t raw_beep = ((period << 24) | ((period - pulsewidth)) << 16);
+    return vmu_beep_raw(dev, raw_beep);
 }
 
 /* Draw a 1-bit bitmap on the LCD screen (48x32). return a -1 if
@@ -316,9 +316,9 @@ int vmu_draw_lcd_xbm(maple_device_t *dev, const char *vmu_icon) {
 /* Utility function which sets the icon on all available VMUs
    from an Xwindows XBM. Imported from libdcutils. */
 void vmu_set_icon(const char *vmu_icon) {
-    int             i = 0;
-    maple_device_t* dev;
-    uint8_t   bitmap[VMU_SCREEN_WIDTH * VMU_SCREEN_HEIGHT / 8];
+    int            i = 0;
+    maple_device_t *dev;
+    uint8_t        bitmap[VMU_SCREEN_WIDTH * VMU_SCREEN_HEIGHT / 8];
 
     vmu_xbm_to_bitmap(bitmap, vmu_icon);
 
