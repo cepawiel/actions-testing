@@ -38,23 +38,22 @@ __BEGIN_DECLS
     A standard, first-party Dreamcast controller has
     the following button configuration:
 
-                           ___________
-                          / |  __  |  \
-       L button -----|   /  | |  | |   \  |----- R button
-                    _|__/   | |__| |    \_|__
-                   |  _      \____/   _   _ |
-    Analog Pad ----|-/ \             |X| |Y||
-                   | \_/              _   _ |
-                   |  _              |A| |B||
-                   |_| |_             ¯   ¯ |
-        D-Pad -----|_   _|                  |
-                   | |_|      /\            |
-                    \        /__\          /
-                     \    ____|________   /
-                      \  /    |       \  /
-                       \/     |        \/
-                              |
-                          Start button
+                            ___________
+                           / |  __  |  \
+       L trigger -----|   /  | |  | |   \  |----- R trigger
+                     _|__/   | |__| |    \_|__
+                    |  _      \____/   _   _ |
+     Joystick   ----|-/ \             |X| |Y||
+                    | \_/              _   _ |
+                    |  _              |A| |B||
+                    |_| |_             ¯   ¯ |
+         D-Pad -----|_   _|                  |
+                    | |_|       /\           |
+                     \         /__\          /
+                      \    _____|_______    /
+                       \  /     |       \  /
+                        \/      |        \/
+                           Start button
 */
 
 /** \defgroup controller_buttons  Controller Button Masks
@@ -91,7 +90,6 @@ __BEGIN_DECLS
     A 1 bit in the buttons' bitfield indicates that a button is pressed, and the
     joyx, joyy, joy2x, joy2 values are all 0 based (0 is centered).
 
-    \headerfile dc/maple/controller.h
 */
 typedef struct cont_state {
     union {
@@ -174,7 +172,8 @@ int cont_has_right_analog(const maple_device_t *cont);
 
 int cont_has_extra_buttons(const maple_device_t *cont);
 
-/** \brief  Controller automatic callback type.
+/** \brief   Controller automatic callback type.
+    \ingroup controller
 
     Functions of this type can be set with cont_btn_callback() to respond
     automatically to the specified set of buttons being pressed. This can be

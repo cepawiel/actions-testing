@@ -12,7 +12,7 @@
 #include <assert.h>
 
 /* Raw controller condition structure */
-typedef struct {
+typedef struct cont_cond {
     uint16_t buttons;  /* buttons bitfield */
     uint8_t rtrig;     /* right trigger */
     uint8_t ltrig;     /* left trigger */
