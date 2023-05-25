@@ -169,7 +169,7 @@ $(foreach package, $(packages), $(eval $(call warn_and_fallback,$(package)_downl
 # Web downloaders command-lines
 downloaders = curl wget
 wget_cmd = wget -c $(if $(2),-O $(2)) '$(1)'
-curl_cmd = curl --fail --location  -C - $(if $(2),-o $(2),-O) '$(1)' 
+curl_cmd = curl --fail --location  -C - $(if $(2),-o $(2),-O) $(1)
 
 ifneq ($(force_downloader),)
 # Check if specified downloader is in supported list
