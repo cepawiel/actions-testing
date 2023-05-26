@@ -1,9 +1,9 @@
 /* KallistiOS ##version##
 
    dc/maple/vmu.h
-   Copyright (C)2000-2002 Jordan DeLong, Megan Potter
-   Copyright (C)2008 Donald Haase
-   Copyright (C)2023 Falco Girgis
+   Copyright (C) 2000-2002 Jordan DeLong, Megan Potter
+   Copyright (C) 2008 Donald Haase
+   Copyright (C) 2023 Falco Girgis
 
 */
 
@@ -19,6 +19,14 @@
     \author Megan Potter
     \author Donald Haase
     \author Falco Girgis
+
+    \todo
+        - flesh out overall module documentation
+        - prevent broadcasting an icon from sending to rear VMUs
+        - implement timer for beeping waveform
+        - implement capability checks
+        - add submodules for different stuff VMU can do
+        - implement root block queries
 */
 
 #ifndef __DC_MAPLE_VMU_H
@@ -55,7 +63,7 @@ __BEGIN_DECLS
     This color is only displayed in the Dreamcast's file manager.
 
     \param  dev             The device to enable custom color.
-    \param  enable          Values other than 0 enables. Equal to 0 disables.\
+    \param  enable          Values other than 0 enables. Equal to 0 disables.
 
     \retval 0               On success
     \retval -1              On failure
@@ -145,62 +153,6 @@ int vmu_set_icon_shape(maple_device_t *dev, uint8_t icon_shape);
 */
 int vmu_get_icon_shape(maple_device_t *dev, uint8_t *icon_shape);
 
-/** \brief  Make a VMU beep.
-
-    This function sends a raw beep to a VMU, causing the speaker to emit a tone
-    noise. See http://dcemulation.org/phpBB/viewtopic.php?f=29&t=97048 for the
-    original information about beeping.
-
-    \warning
-    This function is now deprecated. Prefer vmu_beep, which handles the known
-    values correctly for parameters.
-
-    \param  dev             The device to attempt to beep.
-    \param  beep            The tone to generate. Actual parameters unknown.
-
-    \retval MAPLE_EOK       On success.
-    \retval MAPLE_EAGAIN    If the command couldn't be sent. Try again later.
-    \retval MAPLE_ETIMEOUT  If the command timed out while blocking.
-
-    \sa vmu_beep
-*/
-int vmu_beep_raw(maple_device_t* dev, uint32_t beep) __attribute__((deprecated));
-
-/** \brief  Play VMU Buzzer tone.
-
-    Send a waveform to be played by the VMU's piezoelectric buzzer. The waveform
-    is a square-wave configured with the following parameters:
-
-                   Period
-            +--------------------+
-            |                    |
-                       __________            __________
-                      |          |          |          |
-                      |          |          |          |
-            __________|          |__________|          |
-
-            |         |
-            +---------+        WAVEFORM
-        Inverse Pulse Width
-
-    \warning
-    Due to physical characteristics of the VMU's buzzer, it is unable to produce
-    tones in all frequency ranges with full volume. The recommended range is
-    170 Hz to 2.7 kHz.
-
-    \note
-    On the VMU-side, this tone is generated using the VMU's Timer1 peripheral
-    as a pulse generator.
-
-    \param  period             The total period of the waveform
-    \param  inversePulseWidth  The width of the inactive segment of the waveform
-
-    \retval MAPLE_EOK           On success.
-    \retval MAPLE_EAGAIN        If the command couldn't be sent. Try again later.
-    \retval MAPLE_ETIMEOUT      If the command timed out while blocking.
-*/
-int vmu_beep_waveform(maple_device_t *dev, uint8_t period, uint8_t duty_cycle);
-
 /** \brief  Display a 1bpp bitmap on a VMU screen.
 
     This function sends a raw bitmap to a VMU to display on its screen. This
@@ -286,6 +238,92 @@ int vmu_block_read(maple_device_t *dev, uint16_t blocknum, uint8_t *buffer);
 */
 int vmu_block_write(maple_device_t *dev, uint16_t blocknum, const uint8_t *buffer);
 
+/** \brief  Make a VMU beep (low-level).
+
+    This function sends a raw beep to a VMU, causing the speaker to emit a tone
+    noise. See http://dcemulation.org/phpBB/viewtopic.php?f=29&t=97048 for the
+    original information about beeping.
+
+    \warning
+    This function is submitting raw, encoded values to the VMU. For a more
+    user-friendly API built around generating simple tones, see vmu_beep().
+
+    \param  dev             The device to attempt to beep.
+    \param  beep            The tone to generate. Byte values are as follows:
+                                1. period of square wave 1
+                                2. duty cycle of square wave 1
+                                3. period of square wave 2(ignored by
+                                   standard mono VMUs)
+                                4. duty cycle of square wave 2 (ignored by
+                                   standard mono VMUs) 
+
+    \retval MAPLE_EOK       On success.
+    \retval MAPLE_EAGAIN    If the command couldn't be sent. Try again later.
+    \retval MAPLE_ETIMEOUT  If the command timed out while blocking.
+
+    \sa vmu_beep
+*/
+int vmu_beep_raw(maple_device_t* dev, uint32_t beep);
+
+/** \brief  Play VMU Buzzer tone.
+
+    Sends two different square waves to generate tone(s) on the VMU. Each
+    waveform is configured as shown by the following diagram. On a standard
+    VMU, there is only one piezoelectric buzzer, so waveform 2 is ignored; 
+    however, the parameters do support dual-channel stereo in case such a 
+    VMU ever does come along. 
+
+               Period
+        +--------------------+
+        |                    |
+                   __________            __________
+                  |          |          |          |
+                  |          |          |          |
+        __________|          |__________|          |
+
+                  |          |
+                  +----------+        
+                   Duty Cycle
+
+                              WAVEFORM
+
+    To stop an active tone, one can simply generate a flat wave, such as by 
+    submitting both values as 0s.
+
+    \warning
+    Any submitted waveform which has a duty cycle of greater than or equal to 
+    its period will result in an invalid waveform being generated and is 
+    going to mute or end the tone.
+
+    \note
+    Note that there are no units given for the waveform, so any 3rd party VMU 
+    is free to use any base clock rate, potentially resulting in different 
+    frequencies (or tones) being generated for the same parameters on different 
+    devices.
+
+    \note
+    On the VMU-side, this tone is generated using the VMU's Timer1 peripheral
+    as a pulse generator, which is then fed into its piezoelectric buzzer. The 
+    calculated range of the standard VMU, given its 6MHz CF clock running with a 
+    divisor of 6 is driving the Timer1 counter, is approximately 3.9KHz-500Khz;
+    however, due to physical characteristics of the buzzer, not every frequency
+    can be produced at a decent volume, so it's recommended that you test your
+    values, using the KOS example found at `/examples/dreamcast/vmu/beep`.
+
+    \param  dev                 The VMU device to play the tone on
+    \param  period1             The period or total interval of the first waveform
+    \param  duty_cycle1         The duty cycle or active interval of the first waveform 
+    \param  period2             The period or total interval of the second waveform
+                                (ignored by standard first-party VMUs).
+    \param  duty_cycle2         The duty cycle or active interval of the second waveform
+                                (ignored by standard first-party VMUs).
+
+    \retval MAPLE_EOK           On success.
+    \retval MAPLE_EAGAIN        If the command couldn't be sent. Try again later.
+    \retval MAPLE_ETIMEOUT      If the command timed out while blocking.
+*/
+int vmu_beep_waveform(maple_device_t *dev, uint8_t period1, uint8_t duty_cycle1, uint8_t period2, uint8_t duty_cycle2);
+
 /** \brief  Set the date and time on the VMU.
 
     This function sets the VMU's date and time values to
@@ -304,7 +342,7 @@ int vmu_set_datetime(maple_device_t *dev, time_t time);
 
 /** \brief  Get the date and time on the VMU.
 
-    This function gets the VMU's date and time values,
+    This function gets the VMU's date and time values
     as a single standard C Unix timestamp.
 
     \note
@@ -329,14 +367,14 @@ int vmu_get_datetime(maple_device_t *dev, time_t *time);
 
     @{
 */
-#define VMU_DPAD_UP    (1<<0)   /** \brief Up Dpad button on the VMU */
-#define VMU_DPAD_DOWN  (1<<1)   /** \brief Down Dpad button on the VMU */
-#define VMU_DPAD_LEFT  (2<<1)   /** \brief Left Dpad button on the VMU */
-#define VMU_DPAD_RIGHT (3<<1)   /** \brief Right Dpad button on the VMU */
-#define VMU_A          (4<<1)   /** \brief A button on the VMU */
-#define VMU_B          (5<<1)   /** \brief B Dpad button on the VMU */
-#define VMU_MODE       (6<<1)   /** \brief Mode button on the VMU */
-#define VMU_SLEEP      (7<<1)   /** \brief Sleep button on the VMU */
+#define VMU_DPAD_UP    (1<<0)   /**< \brief Up Dpad button on the VMU */
+#define VMU_DPAD_DOWN  (1<<1)   /**< \brief Down Dpad button on the VMU */
+#define VMU_DPAD_LEFT  (2<<1)   /**< \brief Left Dpad button on the VMU */
+#define VMU_DPAD_RIGHT (3<<1)   /**< \brief Right Dpad button on the VMU */
+#define VMU_A          (4<<1)   /**< \brief 'A' button on the VMU */
+#define VMU_B          (5<<1)   /**< \brief 'B' button on the VMU */
+#define VMU_MODE       (6<<1)   /**< \brief Mode button on the VMU */
+#define VMU_SLEEP      (7<<1)   /**< \brief Sleep button on the VMU */
 /** @} */
 
 /** \brief VMU's raw condition data: 0 = PRESSED, 1 = RELEASED */
