@@ -1,9 +1,9 @@
 /* KallistiOS ##version##
 
    vmu.c
-   Copyright (C)2002,2003 Megan Potter
-   Copyright (C)2008 Donald Haase
-   Copyright (C)2023 Falco Girgis
+   Copyright (C) 2002,2003 Megan Potter
+   Copyright (C) 2008 Donald Haase
+   Copyright (C) 2023 Falco Girgis
  */
 
 /*

@@ -11,9 +11,11 @@
     \brief   Definitions for using the VMU device.
     \ingroup vmu
 
-    This file contains the definitions needed to access the Maple VMU device.
-    This includes all of the functionality of memory cards, including the
-    MAPLE_FUNC_MEMCARD, MAPLE_FUNC_LCD, and MAPLE_FUNC_CLOCK function codes.
+    This file provides an API around the various Maple function
+    types (LCD, MEMCARD, CLOCK) provided by the Visual Memory Unit. 
+    Each API can also be used independently for devices which aren't
+    VMUs, such as using MEMCARD functionality with a standard memory
+    card that lacks a screen or buzzer.
 
     \author Jordan DeLong
     \author Megan Potter
@@ -25,7 +27,7 @@
         - prevent broadcasting an icon from sending to rear VMUs
         - implement timer for beeping waveform
         - implement capability checks
-        - add submodules for different stuff VMU can do
+        - implement locking/unlocking 40 extra blocks
         - implement root block queries
 */
 
@@ -44,20 +46,57 @@ __BEGIN_DECLS
 /** \defgroup vmu Visual Memory Unit
     \brief    VMU/VMS Maple Peripheral API
 
-    @{
-*/
+    The Sega Dreamcast's Visual Memory Unit (VMU) 
+    is an 8-Bit gaming device which, when plugged into 
+    the controller, communicates with the Dreamcast 
+    as a Maple peripheral. 
 
-/**
-    \brief Pixel width of VMU screen
-*/
-#define VMU_SCREEN_WIDTH    48
+                Visual Memory Unit
+                 _________________
+                /                 \
+                |   @ Dreamcast   |
+                |   ___________   |                  
+                |  |           |  |                 
+                |  |           |  |                 
+                |  |           |  |            
+                |  |           |  |  
+        Sleep   |  |___________|  |   Mode 
+          ------|---------\    /--|-------  
+                |   |¯|   *   *   |
+             /--|-|¯   ¯| /¯\ /¯\_|____     
+            /   |  ¯|_|¯  \_/ \_/ |    \
+           |    |          |      |    B
+         D-pad  \__________|______/  
+                           |
+                           A
 
-/**
-    \brief Pixel height of VMU screen
+    As a Maple peripheral, the VMU implements the 
+    following functions:
+    - <b>MEMCARD</b>: Storage device used for saving and 
+                      loading game files.
+    - <b>LCD</b>:     Secondary LCD display on which additonal
+                      information may be presented to the player.
+    - <b>CLOCK</b>:   A device which maintains the current date 
+                      and time, provides at least one buzzer for
+                      playing tones, and also has buttons used 
+                      for input.
+
+    Each Maple function has a corresponding set of C functions
+    providing a high-level API around its functionality.
+
 */
-#define VMU_SCREEN_HEIGHT   32
+/** \defgroup vmu_settings Settings
+    \brief    Customizable configuration data 
+    \ingroup  vmu 
+    
+    This module provides a high-level abstraction around various 
+    features and settings which can be modified on the VMU. Many
+    of these operations are provided by the Dreamcast's BIOS when
+    a VMU has been formatted.
+*/
 
 /** \brief   Enable custom color of a VMU
+    \ingroup vmu_settings
 
     This function enables/disables the custom color of a specific VMU. 
     This color is only displayed in the Dreamcast's file manager.
@@ -72,7 +111,8 @@ __BEGIN_DECLS
 */
 int vmu_use_custom_color(maple_device_t *dev, int enable);
 
-/** \brief  Set custom color of a VMU
+/** \brief   Set custom color of a VMU
+    \ingroup vmu_settings
 
     This function sets the custom color of a specific VMU. This color is only
     displayed in the Dreamcast's file manager. This function also enables the 
@@ -91,7 +131,8 @@ int vmu_use_custom_color(maple_device_t *dev, int enable);
 */
 int vmu_set_custom_color(maple_device_t *dev, uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha);
 
-/** \brief  Get custom color of a VMU
+/** \brief   Get custom color of a VMU
+    \ingroup vmu_settings
 
     This function gets the custom color of a specific VMU. This color is only
     displayed in the Dreamcast's file manager. This function also returns whether
@@ -111,7 +152,8 @@ int vmu_set_custom_color(maple_device_t *dev, uint8_t red, uint8_t green, uint8_
 */
 int vmu_get_custom_color(maple_device_t *dev, uint8_t *red, uint8_t *green, uint8_t *blue, uint8_t *alpha);
 
-/** \brief  Set icon shape of a VMU
+/** \brief   Set icon shape of a VMU
+    \ingroup vmu_settings
 
     This function sets the icon shape of a specific VMU. The icon shape is a
     VMU icon that is displayed on the LCD screen while navigating the Dreamcast
@@ -132,7 +174,8 @@ int vmu_get_custom_color(maple_device_t *dev, uint8_t *red, uint8_t *green, uint
 */
 int vmu_set_icon_shape(maple_device_t *dev, uint8_t icon_shape);
 
-/** \brief  Get icon shape of a VMU
+/** \brief   Get icon shape of a VMU
+    \ingroup vmu_settings
 
     This function gets the icon shape of a specific VMU. The icon shape is a
     VMU icon that is displayed on the LCD screen while navigating the Dreamcast
@@ -153,7 +196,30 @@ int vmu_set_icon_shape(maple_device_t *dev, uint8_t icon_shape);
 */
 int vmu_get_icon_shape(maple_device_t *dev, uint8_t *icon_shape);
 
-/** \brief  Display a 1bpp bitmap on a VMU screen.
+/** \defgroup maple_lcd LCD Function
+    \brief API for features of the LCD Maple Function
+    \ingroup  vmu
+
+    The LCD Maple function is for exposing a secondary LCD screen
+    that gets attached to a controller, which can be used to display
+    additional game information, or information you only want visible
+    to a single player. 
+*/
+
+/**
+    \brief   Pixel width of VMU screen
+    \ingroup maple_lcd
+*/
+#define VMU_SCREEN_WIDTH    48
+
+/**
+    \brief Pixel height of VMU screen
+    \ingroup maple_lcd
+*/
+#define VMU_SCREEN_HEIGHT   32
+
+/** \brief   Display a 1bpp bitmap on a VMU screen.
+    \ingroup maple_lcd
 
     This function sends a raw bitmap to a VMU to display on its screen. This
     bitmap is 1bpp, and is 48x32 in size.
@@ -169,7 +235,8 @@ int vmu_get_icon_shape(maple_device_t *dev, uint8_t *icon_shape);
 */
 int vmu_draw_lcd(maple_device_t *dev, void *bitmap);
 
-/** \brief  Display a Xwindows XBM image on a VMU screen.
+/** \brief   Display a Xwindows XBM image on a VMU screen.
+    \ingroup maple_lcd
 
     This function takes in a Xwindows XBM, converts it to a raw bitmap, and sends 
     it to a VMU to display on its screen. This XBM image is 48x32 in size.
@@ -185,7 +252,8 @@ int vmu_draw_lcd(maple_device_t *dev, void *bitmap);
 */
 int vmu_draw_lcd_xbm(maple_device_t *dev, const char *vmu_icon);
 
-/** \brief  Display a Xwindows XBM on all VMUs.
+/** \brief   Display a Xwindows XBM on all VMUs.
+    \ingroup maple_lcd
 
     This function takes in a Xwindows XBM and displays the image on all VMUs.
 
@@ -198,7 +266,31 @@ int vmu_draw_lcd_xbm(maple_device_t *dev, const char *vmu_icon);
 */
 void vmu_set_icon(const char *vmu_icon);
 
-/** \brief  Read a block from a memory card.
+/** \defgroup maple_memcard Memory Card Function
+    \brief    API for features of the Memory Card Maple Function
+    \ingroup  vmu
+
+    The Memory Card Maple function is for exposing a low-level,
+    block-based API that allows you to read from and write to
+    random blocks within the memory card's filesytem.
+
+    \note
+    A standard memory card has a block size of 512 bytes; however,
+    the block size is a configurable parameter in the "root" block,
+    which can be queried for to cover supporting homebrew memory
+    cards with larger block sizes.
+
+    \warning
+    You should never use these functions directly, unless you 
+    <i>really</i> know what you're doing, as you can easily corrupt
+    the filesystem by writing incorrect data. Instead, you should
+    favor the high-level filesystem API found in vmufs.h, or just
+    use the native C standard filesystem API within the virtual 
+    "/vmu/" root directory to operate on VMU data. 
+*/
+
+/** \brief   Read a block from a memory card.
+    \ingroup maple_memcard
 
     This function reads a raw block from a memory card.
 
@@ -218,7 +310,8 @@ void vmu_set_icon(const char *vmu_icon);
 */
 int vmu_block_read(maple_device_t *dev, uint16_t blocknum, uint8_t *buffer);
 
-/** \brief  Write a block to a memory card.
+/** \brief   Write a block to a memory card.
+    \ingroup maple_memcard
 
     This function writes a raw block to a memory card.
 
@@ -234,11 +327,23 @@ int vmu_block_read(maple_device_t *dev, uint16_t blocknum, uint8_t *buffer);
     \retval MAPLE_ETIMEOUT  If the command timed out while blocking.
     \retval MAPLE_EFAIL     On errors other than timeout.
 
-    \sa vmu_block_read
+    \sa vmu_block_write
 */
 int vmu_block_write(maple_device_t *dev, uint16_t blocknum, const uint8_t *buffer);
 
-/** \brief  Make a VMU beep (low-level).
+/** \defgroup maple_clock Clock Function
+    \brief    API for features of the Clock Maple Function
+    \ingroup  vmu
+
+    The Clock Maple function provides a high-level API for the 
+    following functionality:
+        - buzzer tone generation
+        - date/time management
+        - input/button status
+*/
+
+/** \brief   Make a VMU beep (low-level).
+    \ingroup maple_clock
 
     This function sends a raw beep to a VMU, causing the speaker to emit a tone
     noise. See http://dcemulation.org/phpBB/viewtopic.php?f=29&t=97048 for the
@@ -246,7 +351,7 @@ int vmu_block_write(maple_device_t *dev, uint16_t blocknum, const uint8_t *buffe
 
     \warning
     This function is submitting raw, encoded values to the VMU. For a more
-    user-friendly API built around generating simple tones, see vmu_beep().
+    user-friendly API built around generating simple tones, see vmu_beep_waveform().
 
     \param  dev             The device to attempt to beep.
     \param  beep            The tone to generate. Byte values are as follows:
@@ -261,11 +366,12 @@ int vmu_block_write(maple_device_t *dev, uint16_t blocknum, const uint8_t *buffe
     \retval MAPLE_EAGAIN    If the command couldn't be sent. Try again later.
     \retval MAPLE_ETIMEOUT  If the command timed out while blocking.
 
-    \sa vmu_beep
+    \sa vmu_block_read
 */
 int vmu_beep_raw(maple_device_t* dev, uint32_t beep);
 
-/** \brief  Play VMU Buzzer tone.
+/** \brief   Play VMU Buzzer tone.
+    \ingroup maple_clock
 
     Sends two different square waves to generate tone(s) on the VMU. Each
     waveform is configured as shown by the following diagram. On a standard
@@ -325,6 +431,7 @@ int vmu_beep_raw(maple_device_t* dev, uint32_t beep);
 int vmu_beep_waveform(maple_device_t *dev, uint8_t period1, uint8_t duty_cycle1, uint8_t period2, uint8_t duty_cycle2);
 
 /** \brief  Set the date and time on the VMU.
+    \ingroup maple_clock
 
     This function sets the VMU's date and time values to
     the given standard C Unix timestamp.
@@ -340,7 +447,8 @@ int vmu_beep_waveform(maple_device_t *dev, uint8_t period1, uint8_t duty_cycle1,
 */
 int vmu_set_datetime(maple_device_t *dev, time_t time);
 
-/** \brief  Get the date and time on the VMU.
+/** \brief   Get the date and time on the VMU.
+    \ingroup maple_clock
 
     This function gets the VMU's date and time values
     as a single standard C Unix timestamp.
@@ -361,7 +469,7 @@ int vmu_get_datetime(maple_device_t *dev, time_t *time);
 
 /** \defgroup vmu_buttons VMU Buttons
     \brief    VMU button masks
-    \ingroup  vmu
+    \ingroup  maple_clock
 
     VMU's button state/cond masks, same as capability masks
 
@@ -382,7 +490,8 @@ typedef uint8_t vmu_cond_t;
 /** \brief  VMU's "civilized" state data: 0 = RELEASED, 1 = PRESSED */
 typedef vmu_cond_t vmu_state_t;
 
-/** \brief  Enable/Disable polling for VMU input
+/** \brief   Enable/Disable polling for VMU input
+    \ingroup maple_clock
 
     This function is used to either enable or disable polling the
     VMU buttons' states for input each frame.
@@ -401,7 +510,8 @@ typedef vmu_cond_t vmu_state_t;
 */
 void vmu_set_buttons_enabled(maple_device_t *dev, int enable);
 
-/** \brief  Check whether polling for VMU input has been enabled
+/** \brief   Check whether polling for VMU input has been enabled
+    \ingroup maple_clock
 
     This function is used to check whether per-frame polling of
     the VMU's button states has been enabled in the driver.
