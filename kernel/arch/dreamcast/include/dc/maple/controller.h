@@ -65,7 +65,7 @@ __BEGIN_DECLS
         else printf("Controller not found!\n");
 
     where N is the controller number. 0 would be the first 
-    controller found, which may not necessarily on port A.
+    controller found, which may not necessarily be on port A.
 */
 
 /** \defgroup controller_inputs Querying Inputs
