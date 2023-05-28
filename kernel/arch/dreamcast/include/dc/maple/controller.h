@@ -417,7 +417,7 @@ int cont_has_capabilities(const struct maple_device *cont, uint32_t capabilities
 /** \brief Racing wheel/controller type */
 #define CONT_TYPE_RACING_CONTROLLER         (CONT_CAPABILITY_DPAD_UP | \
                                              CONT_CAPABILITY_DPAD_DOWN | \
-                                             CONT_CAPBILITY_A | \
+                                             CONT_CAPABILITY_A | \
                                              CONT_CAPABILITY_B | \
                                              CONT_CAPABILITY_START | \
                                              CONT_CAPABILITIES_TRIGGERS | \
