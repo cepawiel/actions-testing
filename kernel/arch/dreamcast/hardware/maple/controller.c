@@ -10,6 +10,10 @@
 #include <dc/maple/controller.h>
 #include <string.h>
 #include <assert.h>
+#include <stdint.h>
+
+/* Location of controller capabilities within function_data array */
+#define CONT_FUNCTION_DATA_INDEX  0 
 
 /* Raw controller condition structure */
 typedef struct cont_cond {
@@ -26,6 +30,17 @@ static cont_btn_callback_t btn_callback = NULL;
 static uint8_t btn_callback_addr = 0;
 static uint32_t btn_callback_btns = 0;
 
+/* Check whether the controller has EXACTLY the given capabilties. */
+int cont_is_type(const maple_device_t *cont, uint32_t type) {
+    return cont->info.function_data[CONT_FUNCTION_DATA_INDEX] == type; 
+}
+
+/* Check whether the controller has at LEAST the given capabilities. */
+int cont_has_capabilities(const maple_device_t *cont, uint32_t capabilities) {
+    return (cont->info.function_data[CONT_FUNCTION_DATA_INDEX] 
+            & capabilties) == capabilities;
+}
+
 /* Set a controller callback for a button combo; set addr=0 for any controller */
 void cont_btn_callback(uint8_t addr, uint32_t btns, cont_btn_callback_t cb) {
     btn_callback_addr = addr;
@@ -33,6 +48,7 @@ void cont_btn_callback(uint8_t addr, uint32_t btns, cont_btn_callback_t cb) {
     btn_callback = cb;
 }
 
+/* Response callback for the GETCOND Maple command. */
 static void cont_reply(maple_frame_t *frm) {
     maple_response_t *resp;
     uint32_t         *respbuf;
@@ -56,7 +72,7 @@ static void cont_reply(maple_frame_t *frm) {
     /* Update the status area from the response */
     if(frm->dev) {
         /* Verify the size of the frame and grab a pointer to it */
-        assert(sizeof(cont_cond_t) == ((resp->data_len - 1) * 4));
+        assert(sizeof(cont_cond_t) == ((resp->data_len - 1) * MAPLE_FRAME_WORD_BYTES));
         raw = (cont_cond_t *)(respbuf + 1);
 
         /* Fill the "nice" struct from the raw data */
@@ -64,10 +80,10 @@ static void cont_reply(maple_frame_t *frm) {
         cooked->buttons = (~raw->buttons) & 0xffff;
         cooked->ltrig = raw->ltrig;
         cooked->rtrig = raw->rtrig;
-        cooked->joyx = ((int)raw->joyx) - 128;
-        cooked->joyy = ((int)raw->joyy) - 128;
-        cooked->joy2x = ((int)raw->joy2x) - 128;
-        cooked->joy2y = ((int)raw->joy2y) - 128;
+        cooked->joyx = ((int)raw->joyx) - INT8_MAX;
+        cooked->joyy = ((int)raw->joyy) - INT8_MAX;
+        cooked->joy2x = ((int)raw->joy2x) - INT8_MAX;
+        cooked->joy2y = ((int)raw->joy2y) - INT8_MAX;
         frm->dev->status_valid = 1;
 
         /* Check for magic button sequences */
