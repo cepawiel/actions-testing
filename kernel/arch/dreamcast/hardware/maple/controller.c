@@ -10,7 +10,6 @@
 #include <dc/maple/controller.h>
 #include <string.h>
 #include <assert.h>
-#include <stdint.h>
 
 /* Location of controller capabilities within function_data array */
 #define CONT_FUNCTION_DATA_INDEX  0 
@@ -80,10 +79,10 @@ static void cont_reply(maple_frame_t *frm) {
         cooked->buttons = (~raw->buttons) & 0xffff;
         cooked->ltrig = raw->ltrig;
         cooked->rtrig = raw->rtrig;
-        cooked->joyx = ((int)raw->joyx) - INT8_MAX;
-        cooked->joyy = ((int)raw->joyy) - INT8_MAX;
-        cooked->joy2x = ((int)raw->joy2x) - INT8_MAX;
-        cooked->joy2y = ((int)raw->joy2y) - INT8_MAX;
+        cooked->joyx = ((int)raw->joyx) - 128;
+        cooked->joyy = ((int)raw->joyy) - 128;
+        cooked->joy2x = ((int)raw->joy2x) - 128;
+        cooked->joy2y = ((int)raw->joy2y) - 128;
         frm->dev->status_valid = 1;
 
         /* Check for magic button sequences */
