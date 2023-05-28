@@ -57,10 +57,33 @@ __BEGIN_DECLS
                                Start button
 */
 
-/** \defgroup controller_buttons  Button Masks
+/** \defgroup controller_inputs Input
+    \brief    API used to query for input state
     \ingroup  controller
 
-    The set of bitmasks for all valid maple controller button states.
+    The following API is used to check for a controller's input state.
+
+    You can grab a controller's state structure, containing the state
+    of all of its inputs by using:
+
+        cont_state_t* state = (cont_state_t*)maple_dev_status(device);
+
+    Next you can check for the state of a particular button with:
+
+        if(state->a)                // Check via bitfield
+            printf("Pressed A".);
+
+    or
+        if(state->buttons & CONT_A) // Check via applying bitmask
+            printf("Pressed A.")
+*/
+
+/** \defgroup controller_input_masks Status Masks
+    \brief    Collection of all status masks for checking input
+    \ingroup  controller_inputs
+  
+    A set of bitmasks representing each input source on a controller, used to
+    check its status.
     @{
 */
 #define CONT_C              (1<<0)      /**< \brief C button Mask. */
@@ -141,11 +164,12 @@ typedef struct cont_state {
     int joy2y;    /**< \brief Secondary joystick y-axis value (if applicable). */
 } cont_state_t;
 
-/** \defgroup controller_caps Capability Masks
+/** \defgroup controller_caps Capabilities
+    \brief    Bit masks used ot identify controller capabilities
     \ingroup  controller
 
     These bits will be set in the function_data for the controller's deviceinfo
-    if the controller supports the corresponding feature.
+    if the controller supports the corresponding button/axis capability.
 
     @{
 */
@@ -171,44 +195,67 @@ typedef struct cont_state {
 #define CONT_CAPABILITY_ANALOG_Y        (1<<11)     /**< \brief First analog Y axis capability mask. */
 #define CONT_CAPABILITY_ANALOG2_X       (1<<12)     /**< \brief Second analog X axis capability mask. */
 #define CONT_CAPABILITY_ANALOG2_Y       (1<<13)     /**< \brief Second analog Y axis capability mask. */
-
-
-#define CONT_CAPABILITY_STANDARD_BUTTONS    (CONT_CAPABILITY_A | \
-                                             CONT_CAPABILITY_B | \
-                                             CONT_CAPABILITY_X | \
-                                             CONT_CAPABILITY_Y | \
-                                             CONT_CAPABILITY_START)
-
-#define CONT_CAPABILITY_DPAD                (CONT_CAPABILITY_DPAD_UP   | \
-                                             CONT_CAPABILITY_DPAD_DOWN | \
-                                             CONT_CAPABILITY_DPAD_LEFT | \
-                                             CONT_CAPABILITY_DPAD_RIGHT)
-
-#define CONT_CAPABILITY_ANALOG              (CONT_CAPABILITY_ANALOG_X | \ 
-                                             CONT_CAPABILITY_ANALOG_Y) 
-
-#define CONT_CAPABILITY_TRIGGERS            (CONT_CAPABILITY_LTRIG | \
-                                             CONT_CAPABILITY_RTRIG)
-
-#define CONT_CAPABILITY_EXTENDED_BUTTONS    (CONT_CAPABILITY_C | \
-                                             CONT_CAPABILITY_Z)
-
-#define CONT_CAPABILITY_SECONDARY_DPAD      (CONT_CAPABILITY_DPAD2_UP   | \ 
-                                             CONT_CAPABILITY_DPAD2_DOWN | \
-                                             CONT_CAPABILITY_DPAD2_LEFT | \
-                                             CONT_CAPABILITY_DPAD2_RIGHT)
-
-#define CONT_CAPABILITY_SECONDARY_ANALOG    (CONT_CAPABILITY_ANALOG2_X | \
-                                             CONT_CAPABILITY_ANALOG2_Y)
-
-#define CONT_CAPABILITY_DUAL_DPAD           (CONT_CAPABILITIES_DPAD | \
-                                             CONT_CAPABILITIES_SECONDARY_DPAD)
-
-#define CONT_CAPABILITY_DUAL_ANALOG         (CONT_CAPABILITIES_ANALOG | \
-                                             CONT_CAPABILITIES_SECONDARY_ANALOG)
-
 /** @} */
 
+/** \defgroup controller_caps_groups Capability Groups
+    \brief    Bit masks representing common groups of capabilities
+    \ingroup  controller
+
+    These are a sets of capabilties providing a 
+    convenient way to test for high-level features,
+    such as dual-analog sticks or extra buttons.
+
+    @{
+*/
+#define CONT_CAPABILITIES_STANDARD_BUTTONS    (CONT_CAPABILITY_A | \
+                                               CONT_CAPABILITY_B | \
+                                               CONT_CAPABILITY_X | \
+                                               CONT_CAPABILITY_Y | \
+                                               CONT_CAPABILITY_START)
+
+#define CONT_CAPABILITIS_DPAD                (CONT_CAPABILITY_DPAD_UP   | \
+                                              CONT_CAPABILITY_DPAD_DOWN | \
+                                              CONT_CAPABILITY_DPAD_LEFT | \
+                                              CONT_CAPABILITY_DPAD_RIGHT)
+
+#define CONT_CAPABILITIES_ANALOG              (CONT_CAPABILITY_ANALOG_X | \
+                                               CONT_CAPABILITY_ANALOG_Y) 
+
+#define CONT_CAPABILITIES_TRIGGERS            (CONT_CAPABILITY_LTRIG | \
+                                               CONT_CAPABILITY_RTRIG)
+
+#define CONT_CAPABILITIES_EXTENDED_BUTTONS    (CONT_CAPABILITY_C | \
+                                               CONT_CAPABILITY_Z)
+
+#define CONT_CAPABILITIES_SECONDARY_DPAD      (CONT_CAPABILITY_DPAD2_UP   | \
+                                               CONT_CAPABILITY_DPAD2_DOWN | \
+                                               CONT_CAPABILITY_DPAD2_LEFT | \
+                                               CONT_CAPABILITY_DPAD2_RIGHT)
+
+#define CONT_CAPABILITIES_SECONDARY_ANALOG    (CONT_CAPABILITY_ANALOG2_X | \
+                                               CONT_CAPABILITY_ANALOG2_Y)
+
+#define CONT_CAPABILITIES_DUAL_DPAD           (CONT_CAPABILITY_DPAD | \
+                                               CONT_CAPABILITY_SECONDARY_DPAD)
+
+#define CONT_CAPABILITIES_DUAL_ANALOG         (CONT_CAPABILITY_ANALOG | \
+                                               CONT_CAPABILITY_SECONDARY_ANALOG)
+/** @} */
+
+/** \defgroup controller_types Types
+    \ingroup  controller
+
+    Aggregate capability mask containing all capabilities 
+    which are implemented for a particular controller type.
+    For example, the standard controller type is simply a
+    combination of the following capabilities:
+        - Standard buttons
+        - Triggers
+        - Dpad
+        - Analog
+
+    @{
+*/
 #define CONT_TYPE_STANDARD_CONTROLLER       (CONT_CAPABILITY_STANDARD_BUTTONS | \
                                              CONT_CAPABILITY_TRIGGERS | \
                                              CONT_CAPABLITY_DPAD | \
@@ -237,14 +284,61 @@ typedef struct cont_state {
 #define CONT_TYPE_FISHING_ROD
 #define CONT_TYPE_POP_N_MUSIC
 #define CONT_TYPE_DENSHA_DE_GO
+/** @} */
 
 struct maple_device;
 
-// Conroller has EXACTLY the given capabilties
-int cont_is_type(const struct maple_device_t *cont, uint32_t type);
+/** \brief   Check for controller type
+    \ingroup controller
 
-// Controller has at LEAST the given capabilities
-int cont_has_capabilities(const struct maple_device_t *cont, uint32_t capability_mask);
+    Checks whether or not a controller has the <i>exact</i> 
+    capabilities associated with the given type. 
+
+    \warning
+    Just becase a controller has all of the same capabilities of a 
+    type does not mean that it's that exact type. For example, the
+    ASCII Pad and Arcade Stick both implement the same capabilties,
+    although they are not the same controllers. They would be 
+    indistinguishable here, by design, so that you are able to 
+    generalize to a collection of 1st or 3rd party controllers 
+    easily.
+
+    \param cont            Pointer to a Maple device structure which
+                           implements the CONTROLLER function.   
+    \param type            Type identifier or capability mask the
+                           controller is expected to match
+
+    \return                1 if the controller matches the given type,
+                           0 otherwise.
+
+    \sa cont_has_capabilities
+*/
+int cont_is_type(const struct maple_device *cont, uint32_t type);
+
+/** \brief   Check for controller capabilities
+    \ingroup controller
+
+    Checks whether or not a controller implements the capabilities 
+    associated with the given type. 
+
+    \note
+    Controller capability reporting is an extremely generic mechanism, 
+    such that many peripherals may implement the same capability in 
+    completely different ways. For example, the Samba De Amigo maraca 
+    controller will advertise itself as a dual-analog device, with each
+    maraca being an analog stick. 
+
+    \param cont            Pointer to a Maple device structure which
+                           implements the CONTROLLER function.   
+    \param capabilities    Capability mask the controller is expected 
+                           to implement
+
+    \return                1 if the controller implements the given 
+                           capabilities, 0 otherwise.
+
+    \sa cont_is_type
+*/
+int cont_has_capabilities(const struct maple_device *cont, uint32_t capabilities);
 
 /** \brief   Controller automatic callback type.
     \ingroup controller
@@ -257,6 +351,11 @@ int cont_has_capabilities(const struct maple_device_t *cont, uint32_t capability
     \warning
     Your callback will be invoked within a context with interrupts disabled.
     See cont_btn_callback for more information.
+
+    \param addr             Maple BUS address to poll for the button mask
+                            on, or 0 for all ports.
+    \param btns             Mask of all buttons which should be pressed to
+                            trigger the callback.
 
     \sa cont_btn_callback
 */
