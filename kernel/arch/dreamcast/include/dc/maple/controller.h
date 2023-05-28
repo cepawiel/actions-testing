@@ -55,9 +55,20 @@ __BEGIN_DECLS
                            \  /     |       \  /
                             \/      |        \/
                                Start button
+
+   You can grab a pointer to a connected controller by 
+   using the following:
+
+        maple_device_t* device = maple_enum_type(N, MAPLE_FUNC_CONTROLLER);
+
+        if(device) printf("Controller found!\n");
+        else printf("Controller not found!\n");
+
+    where N is the controller number. 0 would be the first 
+    controller found, which may not necessarily on port A.
 */
 
-/** \defgroup controller_inputs Input
+/** \defgroup controller_inputs Querying Inputs
     \brief    API used to query for input state
     \ingroup  controller
 
@@ -74,16 +85,18 @@ __BEGIN_DECLS
             printf("Pressed A".);
 
     or
+
         if(state->buttons & CONT_A) // Check via applying bitmask
             printf("Pressed A.")
 */
 
-/** \defgroup controller_input_masks Status Masks
+/** \defgroup controller_input_masks Inputs
     \brief    Collection of all status masks for checking input
     \ingroup  controller_inputs
   
     A set of bitmasks representing each input source on a controller, used to
     check its status.
+
     @{
 */
 #define CONT_C              (1<<0)      /**< \brief C button Mask. */
@@ -105,20 +118,15 @@ __BEGIN_DECLS
 /** @} */
 
 /** \brief   Controller buttons for standard reset action
-    \ingroup controller
+    \ingroup controller_inputs
     
-    Convenience macro combining together all of the masks for buttons
-    used by most games as a reset mechanism:
-        * CONT_A
-        * CONT_B
-        * CONT_X
-        * CONT_Y
-        * CONT_START
+    Convenience macro providing the standard button combination
+    used as a reset mechanism by most retail games.
 */
 #define CONT_RESET_BUTTONS  (CONT_A | CONT_B | CONT_X | CONT_Y | CONT_START)
 
 /** \brief   Controller state structure.
-    \ingroup controller
+    \ingroup controller_inputs
 
     This structure contains information about the status of the controller
     device and can be fetched by casting the result of maple_dev_status() to
@@ -164,9 +172,67 @@ typedef struct cont_state {
     int joy2y;    /**< \brief Secondary joystick y-axis value (if applicable). */
 } cont_state_t;
 
+/** \brief   Controller automatic callback type.
+    \ingroup controller_inputs
+
+    Functions of this type can be set with cont_btn_callback() to respond
+    automatically to the specified set of buttons being pressed. This can be
+    used, for instance, to implement the standard A+B+X+Y+Start method of ending
+    the program running.
+
+    \warning
+    Your callback will be invoked within a context with interrupts disabled.
+    See cont_btn_callback for more information.
+
+    \param addr             Maple BUS address to poll for the button mask
+                            on, or 0 for all ports.
+    \param btns             Mask of all buttons which should be pressed to
+                            trigger the callback.
+
+    \sa cont_btn_callback
+*/
+typedef void (*cont_btn_callback_t)(uint8_t addr, uint32_t btns);
+
+/** \brief   Set an automatic button press callback.
+    \ingroup controller_inputs
+
+    This function sets a callback function to be called when the specified
+    controller has the set of buttons given pressed.
+
+    \note 
+    The callback gets invoked for the given maple port; however, providing
+    an address of '0' will cause it to be invoked for any port with a 
+    device pressing the given buttons. Since you are passed back the address 
+    of this device, You are free to implement your own filtering logic within
+    your callback.
+
+    \warning
+    The provided callback function is invoked within a context which has
+    interrupts disabled. This means that you should not do any sort of complex
+    processing or make any API calls which depend on interrupts to complete,
+    such as Maple or etherent processing whichy rely on packet transmission,
+    any sleeping or threading calls, blocking on any sort of file I/O, etc. 
+    This mechanism is typically used to quickly terminate the application
+    and should be used with caution.
+
+    \param  addr            The controller to listen on (or 0 for all ports). 
+                            This value can be obtained by using maple_addr().
+    \param  btns            The buttons bitmask to match.
+    \param  cb              The callback to call when the buttons are pressed.
+*/
+void cont_btn_callback(uint8_t addr, uint32_t btns, cont_btn_callback_t cb);
+
+/** \defgroup controller_query_caps Querying Capabilities
+    \brief    API used to query for a controller's capabilities
+    \ingroup  controller
+    
+    The following API is used to query for the support of individual 
+    or groups of capabilities by a particular device.  
+*/
+
 /** \defgroup controller_caps Capabilities
     \brief    Bit masks used ot identify controller capabilities
-    \ingroup  controller
+    \ingroup  controller_query_caps
 
     These bits will be set in the function_data for the controller's deviceinfo
     if the controller supports the corresponding button/axis capability.
@@ -199,7 +265,7 @@ typedef struct cont_state {
 
 /** \defgroup controller_caps_groups Capability Groups
     \brief    Bit masks representing common groups of capabilities
-    \ingroup  controller
+    \ingroup  controller_query_caps
 
     These are a sets of capabilties providing a 
     convenient way to test for high-level features,
@@ -213,10 +279,10 @@ typedef struct cont_state {
                                                CONT_CAPABILITY_Y | \
                                                CONT_CAPABILITY_START)
 
-#define CONT_CAPABILITIS_DPAD                (CONT_CAPABILITY_DPAD_UP   | \
-                                              CONT_CAPABILITY_DPAD_DOWN | \
-                                              CONT_CAPABILITY_DPAD_LEFT | \
-                                              CONT_CAPABILITY_DPAD_RIGHT)
+#define CONT_CAPABILITIES_DPAD                (CONT_CAPABILITY_DPAD_UP | \
+                                               CONT_CAPABILITY_DPAD_DOWN | \
+                                               CONT_CAPABILITY_DPAD_LEFT | \
+                                               CONT_CAPABILITY_DPAD_RIGHT)
 
 #define CONT_CAPABILITIES_ANALOG              (CONT_CAPABILITY_ANALOG_X | \
                                                CONT_CAPABILITY_ANALOG_Y) 
@@ -227,7 +293,7 @@ typedef struct cont_state {
 #define CONT_CAPABILITIES_EXTENDED_BUTTONS    (CONT_CAPABILITY_C | \
                                                CONT_CAPABILITY_Z)
 
-#define CONT_CAPABILITIES_SECONDARY_DPAD      (CONT_CAPABILITY_DPAD2_UP   | \
+#define CONT_CAPABILITIES_SECONDARY_DPAD      (CONT_CAPABILITY_DPAD2_UP | \
                                                CONT_CAPABILITY_DPAD2_DOWN | \
                                                CONT_CAPABILITY_DPAD2_LEFT | \
                                                CONT_CAPABILITY_DPAD2_RIGHT)
@@ -235,15 +301,74 @@ typedef struct cont_state {
 #define CONT_CAPABILITIES_SECONDARY_ANALOG    (CONT_CAPABILITY_ANALOG2_X | \
                                                CONT_CAPABILITY_ANALOG2_Y)
 
-#define CONT_CAPABILITIES_DUAL_DPAD           (CONT_CAPABILITY_DPAD | \
-                                               CONT_CAPABILITY_SECONDARY_DPAD)
+#define CONT_CAPABILITIES_DUAL_DPAD           (CONT_CAPABILITIES_DPAD | \
+                                               CONT_CAPABILITIES_SECONDARY_DPAD)
 
-#define CONT_CAPABILITIES_DUAL_ANALOG         (CONT_CAPABILITY_ANALOG | \
-                                               CONT_CAPABILITY_SECONDARY_ANALOG)
+#define CONT_CAPABILITIES_DUAL_ANALOG         (CONT_CAPABILITIES_ANALOG | \
+                                               CONT_CAPABILITIES_SECONDARY_ANALOG)
+
+/* Forward declaration */
+struct maple_device;
+
+/** \brief   Check for controller capabilities
+    \ingroup controller_query_caps
+
+    Checks whether or not a controller implements the capabilities 
+    associated with the given type. 
+
+    \note
+    Controller capability reporting is an extremely generic mechanism, 
+    such that many peripherals may implement the same capability in 
+    completely different ways. For example, the Samba De Amigo maraca 
+    controller will advertise itself as a dual-analog device, with each
+    maraca being an analog stick. 
+
+    \param cont            Pointer to a Maple device structure which
+                           implements the CONTROLLER function.   
+    \param capabilities    Capability mask the controller is expected 
+                           to implement
+
+    \return                1 if the controller implements the given 
+                           capabilities, 0 otherwise.
+
+    \sa cont_is_type
+*/
+int cont_has_capabilities(const struct maple_device *cont, uint32_t capabilities);
 /** @} */
 
-/** \defgroup controller_types Types
+/** \defgroup controller_query_types Querying Types
+    \brief    API for determining controller types
     \ingroup  controller
+
+    The following API is for detecting between different types
+    of standard controllers. These controllers are not identified
+    by specific model but are instead identified solely by capabilities,
+    so that homebrew software can remain generic and future-proof to later 
+    homebrew controllers or exotic, untested 3rd party peripherals.
+
+    \warning
+    Usually you want to check if a controller <i>supports the 
+    capabilities</i> of another controller, not whether it is has 
+    the <i>exact</i> same capabilities of a controller. For example, 
+    a controller that happens to come along supporting a dual analog 
+    stick but is otherwise the same layout as a standard controller 
+    would not match the standard controller type; however, it would 
+    implement its capabilities. There exist 3rd party adapters for 
+    connecting dual-analog PS2 controllers to DC which operate 
+    like this today.
+
+    \note
+    If you really want to hard-code the detection of a certain 
+    exact model or brand of controller, instead of basing your
+    detection upon capabilities, check for its product_name
+    or license within the maple_devinfo structure.
+
+    \sa cont_has_capabilities, maple_devinfo
+*/
+
+/** \defgroup controller_types Types
+    \brief    Preconfigured capabilities for standard controllers
+    \ingroup  controller_query_types
 
     Aggregate capability mask containing all capabilities 
     which are implemented for a particular controller type.
@@ -253,43 +378,75 @@ typedef struct cont_state {
         - Triggers
         - Dpad
         - Analog
+    
+    \note
+    Because these are technically just capability masks,
+    a type may also be passed to cont_has_capabilities() 
+    for detecting whether something has <i>at least</i>
+    the capabilities of a type.
 
     @{
 */
-#define CONT_TYPE_STANDARD_CONTROLLER       (CONT_CAPABILITY_STANDARD_BUTTONS | \
-                                             CONT_CAPABILITY_TRIGGERS | \
-                                             CONT_CAPABLITY_DPAD | \
-                                             CONT_CAPABILITY_ANALOG)
+/** \brief Standard controller type */
+#define CONT_TYPE_STANDARD_CONTROLLER       (CONT_CAPABILITIES_STANDARD_BUTTONS | \
+                                             CONT_CAPABILITIES_TRIGGERS | \
+                                             CONT_CAPABILITIES_DPAD | \
+                                             CONT_CAPABILITIES_ANALOG)
 
-#define CONT_TYPE_DUAL_ANALOG_CONTROLLER    (CONT_CAPABILITY_STANDARD_BUTTONS | \
-                                             CONT_CAPABILITY_TRIGGERS | \
-                                             CONT_CAPABLITY_DPAD | \
-                                             CONT_CAPABILITY_DUAL_ANALOG)
+/** \brief Dual analog controller type */
+#define CONT_TYPE_DUAL_ANALOG_CONTROLLER    (CONT_CAPABILITIES_STANDARD_BUTTONS | \
+                                             CONT_CAPABILITIES_TRIGGERS | \
+                                             CONT_CAPABILITIES_DPAD | \
+                                             CONT_CAPABILITIES_DUAL_ANALOG)
 
-#define CONT_TYPE_ASCII_PAD                 (CONT_CAPABILITY_STANDARD_BUTTONS | \
-                                             CONT_CAPABILITY_EXTENDED_BUTTONS | \
-                                             CONT_CAPABILITY_DPAD)
+/** \brief ASCII fighting pad controller type */
+#define CONT_TYPE_ASCII_PAD                 (CONT_CAPABILITIES_STANDARD_BUTTONS | \
+                                             CONT_CAPABILITIES_EXTENDED_BUTTONS | \
+                                             CONT_CAPABILITIES_DPAD)
 
-#define CONT_TYPE_ARCADE_STICK              (CONT_CAPABILITY_STANDARD_BUTTONS | \
-                                             CONT_CAPABILITY_EXTENDED_BUTTONS | \
-                                             CONT_CAPABILITY_DPAD)
+/** \brief Arcade stick controller type */
+#define CONT_TYPE_ARCADE_STICK              (CONT_CAPABILITIES_STANDARD_BUTTONS | \
+                                             CONT_CAPABILITIES_EXTENDED_BUTTONS | \
+                                             CONT_CAPABILITIES_DPAD)
 
-#define CONT_TYPE_TWIN_STICK                (CONT_CAPABILITY_STANDARD_BUTTONS | \ 
-                                             CONT_CAPABILITY_EXTENDED_BUTTONS | \
-                                             CONT_CAPABILITY_DUAL_DPAD)
+/** \brief Twin stick joystick controller type */
+#define CONT_TYPE_TWIN_STICK                (CONT_CAPABILITIES_STANDARD_BUTTONS | \
+                                             CONT_CAPABILITIES_EXTENDED_BUTTONS | \
+                                             CONT_CAPABILITY_D | \
+                                             CONT_CAPABILITIES_DUAL_DPAD)
+/** \brief Racing wheel/controller type */
+#define CONT_TYPE_RACING_CONTROLLER         (CONT_CAPABILITY_DPAD_UP | \
+                                             CONT_CAPABILITY_DPAD_DOWN | \
+                                             CONT_CAPBILITY_A | \
+                                             CONT_CAPABILITY_B | \
+                                             CONT_CAPABILITY_START | \
+                                             CONT_CAPABILITIES_TRIGGERS | \
+                                             CONT_CAPABILITY_ANALOG_X \
+                                             CONT_CAPABILITIES_SECONDARY_ANALOG)
 
-// Require research
-#define CONT_TYPE_RACING_CONTROLLER
-#define CONT_TYPE_MARACAS
-#define CONT_TYPE_FISHING_ROD
+/** \brief Samba De Amigo maraca controller type */
+#define CONT_TYPE_MARACAS                   (CONT_CAPABILITY_A | \
+                                             CONT_CAPABILITY_B | \
+                                             CONT_CAPABILITY_D | \
+                                             CONT_CAPABILITY_START | \
+                                             CONT_CAPABILITIES_EXTENDED_BUTTONS | \
+                                             CONT_CAPABILITIES_DUAL_ANALOG)
+
+/** \brief Fishing rod controller type */
+#define CONT_TYPE_FISHING_ROD               (CONT_CAPABILITIES_STANDARD_BUTTONS | \
+                                             CONT_CAPABILITIES_DPAD | \
+                                             CONT_CAPABILITIES_TRIGGERS | \
+                                             CONT_CAPABILITIES_DUAL_ANALOG)
+
+/** \todo Unknown Pop'n'Music controller type */
 #define CONT_TYPE_POP_N_MUSIC
+
+/** \todo Unknown de Go! controller type */
 #define CONT_TYPE_DENSHA_DE_GO
 /** @} */
 
-struct maple_device;
-
 /** \brief   Check for controller type
-    \ingroup controller
+    \ingroup controller_query_types
 
     Checks whether or not a controller has the <i>exact</i> 
     capabilities associated with the given type. 
@@ -314,81 +471,6 @@ struct maple_device;
     \sa cont_has_capabilities
 */
 int cont_is_type(const struct maple_device *cont, uint32_t type);
-
-/** \brief   Check for controller capabilities
-    \ingroup controller
-
-    Checks whether or not a controller implements the capabilities 
-    associated with the given type. 
-
-    \note
-    Controller capability reporting is an extremely generic mechanism, 
-    such that many peripherals may implement the same capability in 
-    completely different ways. For example, the Samba De Amigo maraca 
-    controller will advertise itself as a dual-analog device, with each
-    maraca being an analog stick. 
-
-    \param cont            Pointer to a Maple device structure which
-                           implements the CONTROLLER function.   
-    \param capabilities    Capability mask the controller is expected 
-                           to implement
-
-    \return                1 if the controller implements the given 
-                           capabilities, 0 otherwise.
-
-    \sa cont_is_type
-*/
-int cont_has_capabilities(const struct maple_device *cont, uint32_t capabilities);
-
-/** \brief   Controller automatic callback type.
-    \ingroup controller
-
-    Functions of this type can be set with cont_btn_callback() to respond
-    automatically to the specified set of buttons being pressed. This can be
-    used, for instance, to implement the standard A+B+X+Y+Start method of ending
-    the program running.
-
-    \warning
-    Your callback will be invoked within a context with interrupts disabled.
-    See cont_btn_callback for more information.
-
-    \param addr             Maple BUS address to poll for the button mask
-                            on, or 0 for all ports.
-    \param btns             Mask of all buttons which should be pressed to
-                            trigger the callback.
-
-    \sa cont_btn_callback
-*/
-typedef void (*cont_btn_callback_t)(uint8_t addr, uint32_t btns);
-
-/** \brief   Set an automatic button press callback.
-    \ingroup controller
-
-    This function sets a callback function to be called when the specified
-    controller has the set of buttons given pressed.
-
-    \note 
-    The callback gets invoked for the given maple port; however, providing
-    an address of '0' will cause it to be invoked for any port with a 
-    device pressing the given buttons. Since you are passed back the address 
-    of this device, You are free to implement your own filtering logic within
-    your callback.
-
-    \warning
-    The provided callback function is invoked within a context which has
-    interrupts disabled. This means that you should not do any sort of complex
-    processing or make any API calls which depend on interrupts to complete,
-    such as Maple or etherent processing whichy rely on packet transmission,
-    any sleeping or threading calls, blocking on any sort of file I/O, etc. 
-    This mechanism is typically used to quickly terminate the application
-    and should be used with caution.
-
-    \param  addr            The controller to listen on (or 0 for all ports). 
-                            This value can be obtained by using maple_addr().
-    \param  btns            The buttons bitmask to match.
-    \param  cb              The callback to call when the buttons are pressed.
-*/
-void cont_btn_callback(uint8_t addr, uint32_t btns, cont_btn_callback_t cb);
 
 /* \cond */
 /* Init / Shutdown */

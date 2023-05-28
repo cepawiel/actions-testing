@@ -38,7 +38,7 @@ int cont_is_type(const maple_device_t *cont, uint32_t type) {
 /* Check whether the controller has at LEAST the given capabilities. */
 int cont_has_capabilities(const maple_device_t *cont, uint32_t capabilities) {
     return (cont->info.function_data[CONT_FUNCTION_DATA_INDEX] 
-            & capabilties) == capabilities;
+            & capabilities) == capabilities;
 }
 
 /* Set a controller callback for a button combo; set addr=0 for any controller */
