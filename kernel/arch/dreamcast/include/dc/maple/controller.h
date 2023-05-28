@@ -273,37 +273,46 @@ void cont_btn_callback(uint8_t addr, uint32_t btns, cont_btn_callback_t cb);
 
     @{
 */
+/** \brief Standard button (A, B, X, Y, Start) controller capabilities */
 #define CONT_CAPABILITIES_STANDARD_BUTTONS    (CONT_CAPABILITY_A | \
                                                CONT_CAPABILITY_B | \
                                                CONT_CAPABILITY_X | \
                                                CONT_CAPABILITY_Y | \
                                                CONT_CAPABILITY_START)
 
+/** \brief Directional pad (up, down, left right) controller capabilities */
 #define CONT_CAPABILITIES_DPAD                (CONT_CAPABILITY_DPAD_UP | \
                                                CONT_CAPABILITY_DPAD_DOWN | \
                                                CONT_CAPABILITY_DPAD_LEFT | \
                                                CONT_CAPABILITY_DPAD_RIGHT)
 
+/** \brief Analog stick (X, Y axes) controller capabilities */
 #define CONT_CAPABILITIES_ANALOG              (CONT_CAPABILITY_ANALOG_X | \
                                                CONT_CAPABILITY_ANALOG_Y) 
 
+/** \brief Trigger (L, R lever) controller capabilities */
 #define CONT_CAPABILITIES_TRIGGERS            (CONT_CAPABILITY_LTRIG | \
                                                CONT_CAPABILITY_RTRIG)
 
+/** \brief Extended button (C, Z) controller capabilities */
 #define CONT_CAPABILITIES_EXTENDED_BUTTONS    (CONT_CAPABILITY_C | \
                                                CONT_CAPABILITY_Z)
 
+/** \brief Secondary directional pad (up, down, left, right) controller capabilities */
 #define CONT_CAPABILITIES_SECONDARY_DPAD      (CONT_CAPABILITY_DPAD2_UP | \
                                                CONT_CAPABILITY_DPAD2_DOWN | \
                                                CONT_CAPABILITY_DPAD2_LEFT | \
                                                CONT_CAPABILITY_DPAD2_RIGHT)
 
+/** \brief Secondary analog stick (X, Y axes) controller capabilities */
 #define CONT_CAPABILITIES_SECONDARY_ANALOG    (CONT_CAPABILITY_ANALOG2_X | \
                                                CONT_CAPABILITY_ANALOG2_Y)
 
+/** \brief Both directional pads (up, down, left right) controller capabilities */
 #define CONT_CAPABILITIES_DUAL_DPAD           (CONT_CAPABILITIES_DPAD | \
                                                CONT_CAPABILITIES_SECONDARY_DPAD)
 
+/** \brief Both analog sticks (X, Y axes) controller capabilities */
 #define CONT_CAPABILITIES_DUAL_ANALOG         (CONT_CAPABILITIES_ANALOG | \
                                                CONT_CAPABILITIES_SECONDARY_ANALOG)
 
