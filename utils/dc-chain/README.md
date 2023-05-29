@@ -10,6 +10,7 @@ This toolchain development/playground branch contains the following toolchain co
 | config.mk.9.5.0-sample | 9.5.0 | 4.3.0 | 2.40 | 8.5.0 | 2.40 | |
 | config.mk.10.4.0.sample | 10.4.0 | 4.3.0 | 2.40 | 8.5.0 | 2.40 | |
 | config.mk.11.3.0.sample | 11.3.0 | 4.3.0 | 2.40 | 8.5.0 | 2.40 | |
+| config.mk.11.4.0.sample | 11.4.0 | 4.3.0 | 2.40 | 8.5.0 | 2.40 | |
 | config.mk.12.2.0.sample | 12.2.0 | 4.3.0 | 2.40 | 8.5.0 | 2.40 | (former "testing" configuration) |
 | config.mk.12.3.0.sample | 12.3.0 | 4.3.0 | 2.40 | 8.5.0 | 2.40 | |
 | config.mk.13.1.0.sample | 13.1.0 | 4.3.0 | 2.40 | 8.5.0 | 2.40 | "testing" configuration |
