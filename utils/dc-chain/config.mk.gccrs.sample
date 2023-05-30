@@ -20,10 +20,8 @@
 ###############################################################################
 ###############################################################################
 ### THIS CONFIG IS FOR AN EXPERIMENTAL VERSION OF GCC!
-## THERE ARE KNOWN ISSUES BUILDING THIS VERSION as of 2023-05-17.
-## Issue #1 -- See line 121.
-## Issue #2 -- Newlib errors occur when attempting to build raw toolchain
-##             without KOS patches. No known workaround at this time.
+## THERE ARE KNOWN ISSUES BUILDING THIS VERSION as of 2023-05-30.
+## Issue #1 -- See line 119.
 ###############################################################################
 ###############################################################################
 
@@ -118,14 +116,17 @@ makejobs=-j2
 # short on hard drive space. Only C is required to build KallistiOS, but some
 # included examples use other languages. 
 ###############################################################################
-### C++ does not build properly with gcc-rs at this time. However, C++ is
-# required to build Rust. You must symlink an existing sh-elf-c++ binary
-# from another stable toolchain to workaround this, like so:
+### C++ does not build properly with gcc-rs and this script at this time. 
+# However, C++ is required to build Rust. The easiest workaround is to symlink
+# an existing sh-elf-c++ binary from another stable toolchain, like so:
 # mkdir -p <toolchains_base>/sh-elf/bin
 # ln -s /opt/toolchains/dc/sh-elf/bin/sh-elf-c++ \
 #        <toolchains_base>/sh-elf/bin/sh-elf-c++
+# NOTE: If you are building a KOS-patched toolchain, the sh-elf-c++ you symlink
+#    must also be from a KOS-patched toolchain. If you are building a raw tool-
+#    chain, the sh-elf-c++ you symlink must also be from a raw toolchain.
 ###############################################################################
-pass2_languages=c,objc,rust
+pass2_languages=c,rust
 
 # Download protocol (http|https|ftp)
 # Specify here the protocol you want to use for downloading the packages.
