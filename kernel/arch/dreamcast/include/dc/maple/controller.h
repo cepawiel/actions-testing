@@ -160,7 +160,7 @@ typedef struct cont_state {
             uint32_t dpad2_down: 1;     /**< \brief Secondary Dpad Down button value. */
             uint32_t dpad2_left: 1;     /**< \brief Secondary Dpad Left button value. */
             uint32_t dpad2_right: 1;    /**< \brief Secondary Dpad Right button value. */
-            uint32_t unused: 16;
+            uint32_t: 16;
         };
     };
 
