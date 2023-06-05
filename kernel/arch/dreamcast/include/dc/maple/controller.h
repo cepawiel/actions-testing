@@ -423,6 +423,13 @@ int cont_has_capabilities(const struct maple_device *cont, uint32_t capabilities
                                              CONT_CAPABILITIES_EXTENDED_BUTTONS | \
                                              CONT_CAPABILITY_D | \
                                              CONT_CAPABILITIES_DUAL_DPAD)
+
+/** \brief ASCII Mission Stick controller type */
+#define CONT_TYPE_ASCII_MISSION_STICK       (CONT_CAPABILITIES_STANDARD_BUTTONS | \
+                                             CONT_CAPABILITIES_DUAL_DPAD | \
+                                             CONT_CAPABILITIES_TRIGGERS | \
+                                             CONT_CAPABILITIES_ANALOG)
+
 /** \brief Racing wheel/controller type */
 #define CONT_TYPE_RACING_CONTROLLER         (CONT_CAPABILITY_DPAD_UP | \
                                              CONT_CAPABILITY_DPAD_DOWN | \
@@ -441,17 +448,28 @@ int cont_has_capabilities(const struct maple_device *cont, uint32_t capabilities
                                              CONT_CAPABILITIES_EXTENDED_BUTTONS | \
                                              CONT_CAPABILITIES_DUAL_ANALOG)
 
+/** \brief Dance Dance Revolution mat controller type */
+#define CONT_TYPE_DANCE_MAT                 (CONT_CAPABILITY_A | \
+                                             CONT_CAPABILITY_B | \
+                                             CONT_CAPABILITY_START | \
+                                             CONT_CAPABILITIES_DPAD)
+
 /** \brief Fishing rod controller type */
 #define CONT_TYPE_FISHING_ROD               (CONT_CAPABILITIES_STANDARD_BUTTONS | \
                                              CONT_CAPABILITIES_DPAD | \
                                              CONT_CAPABILITIES_TRIGGERS | \
                                              CONT_CAPABILITIES_DUAL_ANALOG)
 
-/** \todo Unknown Pop'n'Music controller type */
-#define CONT_TYPE_POP_N_MUSIC
+/** \brief Pop'n'Music controller type */
+#define CONT_TYPE_POP_N_MUSIC               (CONT_CAPABILITIES_STANDARD_BUTTONS | \
+                                             CONT_CAPABILITY_C | \
+                                             CONT_CAPABILITIES_DPAD)
 
-/** \todo Unknown de Go! controller type */
-#define CONT_TYPE_DENSHA_DE_GO
+/** \brief Densha de Go! controller type */
+#define CONT_TYPE_DENSHA_DE_GO              (CONT_CAPABILITIES_STANDARD_BUTTONS | \
+                                             CONT_CAPABILITIES_EXTENDED_BUTTONS | \
+                                             CONT_CAPABILITY_D | \
+                                             CONT_CAPABILITIES_DPAD)
 /** @} */
 
 /** \brief   Check for controller type
