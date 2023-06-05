@@ -135,6 +135,10 @@ __BEGIN_DECLS
     A 1 bit in the buttons' bitfield indicates that a button is pressed, and the
     joyx, joyy, joy2x, joy2 values are all 0 based (0 is centered).
 
+    \note
+    Whether a particular field or button is actually used by the controller
+    depends upon its capabilities. See \ref controller_query_caps.
+
     \sa maple_dev_status
 */
 typedef struct cont_state {
@@ -166,10 +170,10 @@ typedef struct cont_state {
 
     int ltrig;    /**< \brief Left trigger value (0-255). */
     int rtrig;    /**< \brief Right trigger value (0-255). */
-    int joyx;     /**< \brief Main joystick x-axis value. (-128 - 127) */
+    int joyx;     /**< \brief Main joystick x-axis value (-128 - 127). */
     int joyy;     /**< \brief Main joystick y-axis value. */
-    int joy2x;    /**< \brief Secondary joystick x-axis value (if applicable). */
-    int joy2y;    /**< \brief Secondary joystick y-axis value (if applicable). */
+    int joy2x;    /**< \brief Secondary joystick x-axis value. */
+    int joy2y;    /**< \brief Secondary joystick y-axis value. */
 } cont_state_t;
 
 /** \brief   Controller automatic callback type.
