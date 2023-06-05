@@ -41,15 +41,15 @@ __BEGIN_DECLS
 
                                 ___________
                                / |  __  |  \
-           L trigger -----|   /  | |  | |   \  |----- R trigger
+          L trigger ------|   /  | |  | |   \  |----- R trigger
                          _|__/   | |__| |    \_|__
                         |  _      \____/          |
-         Joystick   ----|-/ \               (Y)   |
+           Joystick ----|-/ \               (Y)   |
                         | \_/            (X)   (B)|
-                        |  _                (A)   |
-                        |_| |_                    |
-             D-Pad -----|_   _|                  |
-                        | |_|       /\           |
+                        |    _              (A)   |
+                        |  _| |_                  |
+              D-Pad ----|-|_   _|                 |
+                        |   |_|     /\            |
                          \         /__\          /
                           \    _____|_______    /
                            \  /     |       \  /
@@ -240,6 +240,10 @@ void cont_btn_callback(uint8_t addr, uint32_t btns, cont_btn_callback_t cb);
 
     These bits will be set in the function_data for the controller's deviceinfo
     if the controller supports the corresponding button/axis capability.
+
+    \note
+    The ordering here is so that they match the order found in 
+    \ref controller_input_masks.
 
     @{
 */
