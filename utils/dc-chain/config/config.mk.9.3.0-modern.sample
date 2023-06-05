@@ -15,7 +15,6 @@
 # build-arm-gcc: build-arm-gcc-pass1
 # build-sh4-newlib: build-sh4-newlib-only fixup-sh4-newlib
 # gdb
-# insight
 
 # Toolchain versions for SH
 sh_binutils_ver=2.40
@@ -170,3 +169,9 @@ install_mode=install-strip
 # portable if you built it on another environment. Don't mess with that flag
 # unless you know exactly what you are doing.
 #sh_force_libbfd_installation=1
+
+# Specify GNU Mirror override
+# The default mirror for GNU sources is `ftpmirror.gnu.org`
+# Setting this will allow overriding the default mirror which
+# may be desirable if you have a prefered mirror.
+# gnu_mirror=mirrors.kernel.org

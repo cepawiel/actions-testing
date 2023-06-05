@@ -15,26 +15,24 @@
 # build-arm-gcc: build-arm-gcc-pass1
 # build-sh4-newlib: build-sh4-newlib-only fixup-sh4-newlib
 # gdb
-# insight
 
 ###############################################################################
 ###############################################################################
 ### THIS CONFIG IS FOR AN EXPERIMENTAL VERSION OF GCC!
-## THERE ARE KNOWN ISSUES BUILDING THIS VERSION as of 2023-05-30.
-## Issue #1 -- See line 119.
+## THERE ARE NO KNOWN ISSUES BUILDING THIS VERSION as of 2023-06-05.
 ###############################################################################
 ###############################################################################
 
 # Toolchain versions for SH
 sh_binutils_ver=2.40
-sh_gcc_ver=rs
+sh_gcc_ver=devel
 newlib_ver=4.3.0.20230120
 gdb_ver=13.1
 
 # Tarball extensions to download for SH
 sh_binutils_download_type=xz
 sh_gcc_download_type=git
-sh_gcc_git_repo=https://github.com/Rust-GCC/gccrs.git
+sh_gcc_git_repo=git://gcc.gnu.org/git/gcc.git
 sh_gcc_git_branch=master
 newlib_download_type=gz
 gdb_download_type=xz
@@ -115,18 +113,7 @@ makejobs=-j2
 # to take out some languages if you're not worried about them and/or you're
 # short on hard drive space. Only C is required to build KallistiOS, but some
 # included examples use other languages. 
-###############################################################################
-### C++ does not build properly with gcc-rs and this script at this time. 
-# However, C++ is required to build Rust. The easiest workaround is to symlink
-# an existing sh-elf-c++ binary from another stable toolchain, like so:
-# mkdir -p <toolchains_base>/sh-elf/bin
-# ln -s /opt/toolchains/dc/sh-elf/bin/sh-elf-c++ \
-#        <toolchains_base>/sh-elf/bin/sh-elf-c++
-# NOTE: If you are building a KOS-patched toolchain, the sh-elf-c++ you symlink
-#    must also be from a KOS-patched toolchain. If you are building a raw tool-
-#    chain, the sh-elf-c++ you symlink must also be from a raw toolchain.
-###############################################################################
-pass2_languages=c,rust
+pass2_languages=c,c++,objc,obj-c++,rust
 
 # Download protocol (http|https|ftp)
 # Specify here the protocol you want to use for downloading the packages.
@@ -151,6 +138,18 @@ thread_model=kos
 # Use 'install' only if you want to enable debug symbols for the toolchains.
 # This may be useful only if you plan to debug the toolchain itself.
 install_mode=install-strip
+
+# C99 Format Specifier Support (1|0)
+# Define this to build SH4 Newlib with additional support for the C99 format
+# specifiers, used by printf and friends. These include support for size_t,
+# ptrdiff_t, intmax_t, and sized integral types.
+#newlib_c99_formats=1
+
+# Optimize Newlib for Space (1|0)
+# Define this to enable optimizing for space when building Newlib. This will
+# build Newlib with compiler flags which favor smaller code sizes over faster
+# performance.
+#newlib_opt_space=1
 
 # MinGW/MSYS
 # Standalone binaries (1|0)
@@ -180,3 +179,9 @@ install_mode=install-strip
 # portable if you built it on another environment. Don't mess with that flag
 # unless you know exactly what you are doing.
 #sh_force_libbfd_installation=1
+
+# Specify GNU Mirror override
+# The default mirror for GNU sources is `ftpmirror.gnu.org`
+# Setting this will allow overriding the default mirror which
+# may be desirable if you have a prefered mirror.
+# gnu_mirror=mirrors.kernel.org
