@@ -231,7 +231,7 @@ void cont_btn_callback(uint8_t addr, uint32_t btns, cont_btn_callback_t cb);
 */
 
 /** \defgroup controller_caps Capabilities
-    \brief    Bit masks used ot identify controller capabilities
+    \brief    Bit masks used to identify controller capabilities
     \ingroup  controller_query_caps
 
     These bits will be set in the function_data for the controller's deviceinfo
