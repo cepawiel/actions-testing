@@ -48,6 +48,15 @@ ifeq (1,$(do_kos_patching))
   build_gdb: patch_gdb
 endif
 
+# Require SH downloads before patching
+patch-sh4-binutils: fetch-sh-binutils
+patch-sh4-gcc: fetch-sh-gcc
+patch-sh4-newlib: fetch-newlib
+
+# Require ARM downloads before patching
+patch-arm-binutils: fetch-arm-binutils
+patch-arm-gcc: fetch-arm-gcc
+
 uname_p := $(shell uname -p)
 uname_s := $(shell uname -s)
 
