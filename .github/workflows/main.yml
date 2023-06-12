@@ -20,7 +20,7 @@ jobs:
       - name: Add Upstream Remote
         run: |
           cd builder 
-          git remote add upstream git@github.com:KallistiOS/KallistiOS.git
+          git remote add upstream https://github.com/KallistiOS/KallistiOS
           git fetch -u upstream
 
       - name: Sync Branches
