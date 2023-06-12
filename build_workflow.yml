@@ -17,9 +17,11 @@ jobs:
 
     - name: Build Container
       run: |
+        ls -la
         docker buildx build \
           --platform=linux/arm64 \
           --build-arg CONFIG_FILE=config.mk.testing.sample \
           --build-arg BUILD_TYPE=kos \
           --target build-gdb \
           .
+        
