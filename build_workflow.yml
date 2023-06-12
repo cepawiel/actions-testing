@@ -13,7 +13,7 @@ jobs:
     - uses: actions/checkout@v3
       with:
         fetch-depth: 2
-    - run: git checkout HEAD^
+    - run: git reset HEAD^
 
     - name: Build Container
       run: |
