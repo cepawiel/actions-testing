@@ -18,7 +18,10 @@ jobs:
             cp builder/build_workflow.yml build_workflow.yml
     
       - name: Add Upstream Remote
-        run: cd builder && git remote add upstream git@github.com:KallistiOS/KallistiOS.git
+        run: |
+          cd builder 
+          git remote add upstream git@github.com:KallistiOS/KallistiOS.git
+          git fetch -u upstream
 
       - name: Sync Branches
         run: ./sync_branches.sh
