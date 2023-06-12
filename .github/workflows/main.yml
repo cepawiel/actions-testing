@@ -10,12 +10,13 @@ jobs:
       - name: Checkout Branch
         uses: actions/checkout@v3
         with:
-            path: builder
+          fetch-depth: 0
+          path: builder
 
       - name: Move Files
         run: |
-            cp builder/sync_branches.sh sync_branches.sh
-            cp builder/build_workflow.yml build_workflow.yml
+          cp builder/sync_branches.sh sync_branches.sh
+          cp builder/build_workflow.yml build_workflow.yml
     
       - name: Add Upstream Remote
         run: |
