@@ -13,10 +13,10 @@ jobs:
     steps:
         - uses: actions/checkout@v3
 
+        - run: cat config.json
+
         - id: set
-          run: |
-            cat config.json
-            echo "config=$(cat config.json | jq -c)" >> $GITHUB_OUTPUT         
+          run: echo "config=$(cat config.json | jq -c)" >> $GITHUB_OUTPUT         
 
 
   build_matrix:
