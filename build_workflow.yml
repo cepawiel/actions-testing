@@ -25,7 +25,8 @@ jobs:
     needs: [setup]
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.setup.outputs.config) }}
+      matrix: 
+        include: ${{ fromJson(needs.setup.outputs.config) }}
     runs-on: ${{ matrix.runner }}
     steps:
       - run: |
