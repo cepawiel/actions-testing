@@ -29,3 +29,4 @@ jobs:
 
       - name: Sync Branches
         run: ./sync_branches.sh
+        
