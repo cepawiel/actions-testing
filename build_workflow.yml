@@ -18,9 +18,8 @@ jobs:
         - id: set
           run: echo "config=$(cat config.json | jq -c)" >> $GITHUB_OUTPUT
 
-        - run: echo "${{ steps.set.outputs.config }}"
 
-
+  # 2) Matrix Build
   build_matrix:
     needs: [setup]
     strategy:
@@ -30,42 +29,35 @@ jobs:
     runs-on: ${{ matrix.runner }}
     steps:
       - run: |
-          echo ${{ matrix }}
           echo ${{ matrix.type }}
           echo ${{ matrix.tag }}
-          echo ${{ matrix.config }}
           echo ${{ matrix.latest }}
-          echo ${{ matrix.arch }}
-          echo ${{ matrix.runner }}
 
-  # test-run:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - name: Set up Docker Buildx
-  #     uses: docker/setup-buildx-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-  #   # Checkout Build Scripts
-  #   - uses: actions/checkout@v3
-  #     with:
-  #       ref: main
+      # Checkout Build Scripts
+      - uses: actions/checkout@v3
+        with:
+          ref: main
 
-  #   # Checkout Source
-  #   - uses: actions/checkout@v3
-  #     with:
-  #       fetch-depth: 2
-  #       path: KOS
+      # Checkout Source
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+          path: KOS
 
-  #   # Goto commit prior to our Actions additions
-  #   - run: cd KOS && git reset HEAD^
+      # Goto commit prior to our Actions additions
+      - run: cd KOS && git reset HEAD^
 
-  #   # Build Container
-  #   - name: Build Container
-  #     run: |
-  #       docker buildx build \
-  #         --platform=linux/amd64 \
-  #         --build-arg CONFIG_FILE=config.mk.testing.sample \
-  #         --build-arg BUILD_TYPE=kos \
-  #         --target gdb-build \
-  #         .
-        
+      # Build Container
+      - name: Build Container
+        run: |
+          docker buildx build \
+            --platform=${{ matrix.arch }} \
+            --build-arg CONFIG_FILE=${{ matrix.config }} \
+            --build-arg BUILD_TYPE=kos \
+            --target gdb-build \
+            .
+  
         
