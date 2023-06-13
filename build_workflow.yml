@@ -18,7 +18,7 @@ jobs:
         - id: set
           run: echo "config=$(cat config.json | jq -c)" >> $GITHUB_OUTPUT
 
-        - run: echo ${{ steps.set.outputs.config }}
+        - run: echo "${{ steps.set.outputs.config }}"
 
 
   build_matrix:
@@ -26,7 +26,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.setup.outputs.config) }}
-    runs-on: ${{ matrix.host }}
+    runs-on: ${{ matrix.runner }}
     steps:
       - run: |
           echo ${{ matrix }}
@@ -35,6 +35,7 @@ jobs:
           echo ${{ matrix.config }}
           echo ${{ matrix.latest }}
           echo ${{ matrix.arch }}
+          echo ${{ matrix.runner }}
 
   # test-run:
   #   runs-on: ubuntu-latest
