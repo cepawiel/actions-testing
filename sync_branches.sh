@@ -3,6 +3,7 @@
 DIR=builder
 
 WORKFLOW=../build_workflow.yml
+CONFIG=../toolchains.json
 
 cd $DIR
 
@@ -58,6 +59,8 @@ dosync() {
     mkdir -p .github/workflows
     cp $WORKFLOW .github/workflows/build.yml
     git add .github/workflows/build.yml
+    cp $CONFIG toolchains.json
+    git add toolchains.json
     git commit -m "Setup Github Actions"
     git push --force -u origin $1
 }

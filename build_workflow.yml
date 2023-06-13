@@ -11,8 +11,6 @@ jobs:
     outputs:
       toolchains: ${{ steps.set.outputs.toolchains }}
     steps:
-        - uses: actions/checkout@v3
-
         - id: set
           run: |
             echo "toolchains=$(cat toolchains.json)" >> $GITHUB_OUTPUT
