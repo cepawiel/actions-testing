@@ -18,7 +18,7 @@ jobs:
         run: |
           cp builder/sync_branches.sh sync_branches.sh
           cp builder/build_workflow.yml build_workflow.yml
-          cp builder/toolchains.json toolchains.json
+          cp builder/config.json config.json
     
       - name: Add Upstream Remote
         run: |

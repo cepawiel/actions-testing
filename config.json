@@ -1,0 +1,37 @@
+[
+    {
+        "type" : "kos-container",
+        "tag": "testing",
+        "config": "config.mk.testing.sample",
+        "latest": false,
+        "arch" : "linux-amd64"
+    },
+    {
+        "type" : "kos-container",
+        "tag": "testing",
+        "config": "config.mk.testing.sample",
+        "latest": false,
+        "arch" : "linux-arm64"
+    },
+    {
+        "type" : "kos-container",
+        "tag": "stable",
+        "config": "config.mk.stable.sample",
+        "latest": true,
+        "arch" : "linux-amd64"
+    },
+    {
+        "type" : "kos-container",
+        "tag": "stable",
+        "config": "config.mk.stable.sample",
+        "latest": true,
+        "arch" : "linux-arm64"
+    },
+    {
+        "type" : "kos-container",
+        "tag": "legacy",
+        "config": "config.mk.legacy.sample",
+        "latest": true,
+        "arch" : "linux-amd64"
+    }
+]

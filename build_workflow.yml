@@ -9,28 +9,30 @@ jobs:
     name: Setup Matrix
     runs-on: ubuntu-latest
     outputs:
-      toolchains: ${{ steps.set.outputs.toolchains }}
+      config: ${{ steps.set.outputs.config }}
     steps:
         - uses: actions/checkout@v3
 
         - id: set
           run: |
-            cat toolchains.json
-            echo "toolchains=$(cat toolchains.json | jq -c)" >> $GITHUB_OUTPUT
+            cat config.json
+            echo "config=$(cat config.json | jq -c)" >> $GITHUB_OUTPUT         
 
 
   build_matrix:
     needs: [setup]
     strategy:
       fail-fast: false
-      matrix:
-        host: [linux-amd64, linux-arm64]
-        build: [kos, raw]
-        toolchain: ${{ fromJson(needs.setup.outputs.toolchains) }}
+      matrix: ${{ fromJson(needs.setup.outputs.config) }}
     runs-on: ${{ matrix.host }}
     steps:
-      - run: echo ${{ matrix.build }}
-      - run: echo ${{ matrix.toolchain }}
+      - run: |
+          echo ${{ matrix }}
+          echo ${{ matrix.type }}
+          echo ${{ matrix.tag }}
+          echo ${{ matrix.config }}
+          echo ${{ matrix.latest }}
+          echo ${{ matrix.arch }}
 
   # test-run:
   #   runs-on: ubuntu-latest
