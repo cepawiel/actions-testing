@@ -16,7 +16,9 @@ jobs:
         - run: cat config.json
 
         - id: set
-          run: echo "config=$(cat config.json | jq -c)" >> $GITHUB_OUTPUT         
+          run: echo "config=$(cat config.json | jq -c)" >> $GITHUB_OUTPUT
+
+        - run: echo ${{ steps.set.outputs.config }}
 
 
   build_matrix:
