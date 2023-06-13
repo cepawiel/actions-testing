@@ -12,12 +12,11 @@ jobs:
       toolchains: ${{ steps.set.outputs.toolchains }}
     steps:
         - uses: actions/checkout@v3
-        
+
         - id: set
           run: |
-            ls -la
             cat toolchains.json
-            echo "toolchains=$(cat toolchains.json)" >> $GITHUB_OUTPUT
+            echo "toolchains=$(cat toolchains.json | jq -c)" >> $GITHUB_OUTPUT
 
 
   build_matrix:
