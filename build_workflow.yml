@@ -15,7 +15,6 @@ jobs:
 
         - id: set
           run: |
-            ./gen_build_matrix.py
             echo "toolchains=$(cat toolchains.json)" >> $GITHUB_OUTPUT
 
 
