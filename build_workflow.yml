@@ -20,7 +20,7 @@ jobs:
       with:
         fetch-depth: 2
         path: KOS
-    
+
     - run: cd KOS && git reset HEAD^
 
     - name: Build Container
@@ -31,4 +31,5 @@ jobs:
           --build-arg BUILD_TYPE=kos \
           --target gdb-build \
           .
+        
         
