@@ -1,0 +1,17 @@
+[    
+    {
+        "tag": "testing",
+        "config": "config.mk.testing.sample",
+        "default": false
+    },
+    {
+        "tag": "stable",
+        "config": "config.mk.stable.sample",
+        "default": true
+    },
+    {
+        "tag": "legacy",
+        "config": "config.mk.legacy.sample",
+        "default": false
+    }
+]

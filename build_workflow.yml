@@ -4,32 +4,62 @@ on:
       - 'main'
 
 jobs:
-  test-run:
+  # 1) Generate Matrix
+  setup:
+    name: Setup Matrix
     runs-on: ubuntu-latest
+    outputs:
+      toolchains: ${{ steps.set.outputs.toolchains }}
     steps:
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
+        - uses: actions/checkout@v3
 
-    # Checkout Build Scripts
-    - uses: actions/checkout@v3
-      with:
-        ref: main
+        - id: set
+          run: |
+            ./gen_build_matrix.py
+            echo "toolchains=$(cat toolchains.json)" >> $GITHUB_OUTPUT
 
-    # Checkout Source
-    - uses: actions/checkout@v3
-      with:
-        fetch-depth: 2
-        path: KOS
 
-    - run: cd KOS && git reset HEAD^
+  build_matrix:
+    needs: [setup]
+    strategy:
+      fail-fast: false
+      matrix:
+        host: [linux-amd64, linux-arm64]
+        build: [kos, raw]
+        toolchain: ${{ fromJson(needs.setup.outputs.toolchains) }}
+    runs-on: ${{ matrix.host }}
+    steps:
+      - run: echo ${{ matrix.build }}
+      - run: echo ${{ matrix.toolchain }}
 
-    - name: Build Container
-      run: |
-        docker buildx build \
-          --platform=linux/amd64 \
-          --build-arg CONFIG_FILE=config.mk.testing.sample \
-          --build-arg BUILD_TYPE=kos \
-          --target gdb-build \
-          .
+  # test-run:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: Set up Docker Buildx
+  #     uses: docker/setup-buildx-action@v2
+
+  #   # Checkout Build Scripts
+  #   - uses: actions/checkout@v3
+  #     with:
+  #       ref: main
+
+  #   # Checkout Source
+  #   - uses: actions/checkout@v3
+  #     with:
+  #       fetch-depth: 2
+  #       path: KOS
+
+  #   # Goto commit prior to our Actions additions
+  #   - run: cd KOS && git reset HEAD^
+
+  #   # Build Container
+  #   - name: Build Container
+  #     run: |
+  #       docker buildx build \
+  #         --platform=linux/amd64 \
+  #         --build-arg CONFIG_FILE=config.mk.testing.sample \
+  #         --build-arg BUILD_TYPE=kos \
+  #         --target gdb-build \
+  #         .
         
         
