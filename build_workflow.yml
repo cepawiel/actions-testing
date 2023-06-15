@@ -73,7 +73,7 @@ jobs:
       #       --target gdb-build \
       #       -t ghcr.io/cepawiel/temp-toolchain-${{ matrix.type }}:$SHA-${{ matrix.tag }}-$ARCH \
       #       .
-  
+
       - name: Build base Docker image
         uses: docker/build-push-action@v2
         with:
