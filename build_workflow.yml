@@ -29,14 +29,6 @@ jobs:
         include: ${{ fromJson(needs.setup.outputs.config) }}
     runs-on: ${{ matrix.runner }}
     steps:
-      - id: set
-        run: |
-          echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
-          echo "arch=$(echo "${{ matrix.arch }}" | cut -d "/" -f2)" >> $GITHUB_OUTPUT
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
       # Checkout Build Scripts
       - uses: actions/checkout@v3
         with:
@@ -47,6 +39,9 @@ jobs:
         with:
           fetch-depth: 2
           path: KOS
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
       # Goto commit prior to our Actions additions
       - run: cd KOS && git reset HEAD^
@@ -73,6 +68,11 @@ jobs:
       #       --target gdb-build \
       #       -t ghcr.io/cepawiel/temp-toolchain-${{ matrix.type }}:$SHA-${{ matrix.tag }}-$ARCH \
       #       .
+
+      - id: set
+        run: |
+          echo "sha=$(cd KOS && git rev-parse HEAD)" >> $GITHUB_OUTPUT
+          echo "arch=$(echo "${{ matrix.arch }}" | cut -d "/" -f2)" >> $GITHUB_OUTPUT
 
       - name: Build base Docker image
         uses: docker/build-push-action@v2
