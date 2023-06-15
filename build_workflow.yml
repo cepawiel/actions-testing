@@ -50,6 +50,13 @@ jobs:
       # Goto commit prior to our Actions additions
       - run: cd KOS && git reset HEAD^
 
+      - name: Login to Github Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       # Build Container
       - name: Build Container
         run: |
