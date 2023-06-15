@@ -1,0 +1,67 @@
+on: 
+  push:
+    branches-ignore: 
+      - 'main'
+
+jobs:
+  # 1) Generate Matrix
+  setup:
+    name: Setup Matrix
+    runs-on: ubuntu-latest
+    outputs:
+      config: ${{ steps.set.outputs.config }}
+    steps:
+        - uses: actions/checkout@v3
+
+        - run: cat config.json
+
+        - id: set
+          run: echo "config=$(cat config.json | jq -c)" >> $GITHUB_OUTPUT
+
+
+  # 2) Matrix Build
+  build_matrix:
+    needs: [setup]
+    strategy:
+      fail-fast: false
+      matrix: 
+        include: ${{ fromJson(needs.setup.outputs.config) }}
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - run: |
+          echo ${{ matrix.type }}
+          echo ${{ matrix.tag }}
+          echo ${{ matrix.latest }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      # Checkout Build Scripts
+      - uses: actions/checkout@v3
+        with:
+          ref: main
+
+      # Checkout Source
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+          path: KOS
+
+      # Goto commit prior to our Actions additions
+      - run: cd KOS && git reset HEAD^
+
+      # Build Container
+      - name: Build Container
+        run: |
+          export SHA=$(git rev-parse HEAD)
+          export ARCH=$(echo "${{ matrix.arch }}" | cut -d "/" -f2)
+          docker buildx build \
+            --push \
+            --platform=${{ matrix.arch }} \
+            --build-arg CONFIG_FILE=${{ matrix.config }} \
+            --build-arg BUILD_TYPE=kos \
+            --target gdb-build \
+            -t ghrc.io/cepawiel/temp-toolchain-${{ matrix.type }}:$SHA-${{ matrix.tag }}-$ARCH \
+            .
+  
+        
