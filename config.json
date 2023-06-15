@@ -27,6 +27,6 @@
         "config": "config.mk.legacy.sample",
         "latest": false,
         "platform" : ["linux/amd64"],
-        "runner" : ["self-hosted", "X64", "Linux"],
+        "runner" : ["self-hosted", "X64", "Linux"]
     }
 ]
