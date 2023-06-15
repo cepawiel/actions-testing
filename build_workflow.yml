@@ -64,6 +64,7 @@ jobs:
           export ARCH=$(echo "${{ matrix.arch }}" | cut -d "/" -f2)
           docker buildx build \
             --push \
+            --cache-from=type=gha --cache-to=type=gha \
             --platform=${{ matrix.arch }} \
             --build-arg CONFIG_FILE=${{ matrix.config }} \
             --build-arg BUILD_TYPE=kos \
