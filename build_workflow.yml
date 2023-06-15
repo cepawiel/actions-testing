@@ -72,4 +72,9 @@ jobs:
             -t ghcr.io/cepawiel/temp-toolchain-${{ matrix.type }}:$SHA-${{ matrix.tag }}-$ARCH \
             .
   
-        
+  multi_arch_containers:
+    needs: [build_matrix]
+    runs-on: ubuntu-latest
+
+    steps:
+        - uses: actions/checkout@v3
