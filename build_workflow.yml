@@ -68,7 +68,7 @@ jobs:
             --build-arg CONFIG_FILE=${{ matrix.config }} \
             --build-arg BUILD_TYPE=kos \
             --target gdb-build \
-            -t ghrc.io/cepawiel/temp-toolchain-${{ matrix.type }}:$SHA-${{ matrix.tag }}-$ARCH \
+            -t ghcr.io/cepawiel/temp-toolchain-${{ matrix.type }}:$SHA-${{ matrix.tag }}-$ARCH \
             .
   
         
