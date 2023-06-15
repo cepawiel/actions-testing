@@ -1,42 +1,32 @@
 [
     {
-        "type" : "kos",
-        "tag": "testing",
+        "type" : "kos-container",
+        "toolchain_tag": "toolchain-kos:sha-1c3282cc89b5ca2be893a8aca08d070212aa87a2-testing",
+        "cache" : "branch-testing-amd64",
+        "ports_tag": "kos-ports:sha-1c3282cc89b5ca2be893a8aca08d070212aa87a2-testing",
         "config": "config.mk.testing.sample",
         "latest": false,
-        "arch" : "linux/amd64",
+        "platform" : ["linux/amd64"],
         "runner" : ["self-hosted", "X64", "Linux"]
     },
     {
-        "type" : "kos",
-        "tag": "testing",
-        "config": "config.mk.testing.sample",
-        "latest": false,
-        "arch" : "linux/arm64",
-        "runner" : ["self-hosted", "ARM64", "Linux"]
-    },
-    {
-        "type" : "kos",
-        "tag": "stable",
+        "type" : "kos-container",
+        "toolchain_tag": "toolchain-kos:sha-1c3282cc89b5ca2be893a8aca08d070212aa87a2-stable",
+        "cache" : "branch-stable-amd64",
+        "ports_tag": "kos-ports:sha-1c3282cc89b5ca2be893a8aca08d070212aa87a2-stable",
         "config": "config.mk.stable.sample",
         "latest": true,
-        "arch" : "linux/amd64",
+        "platform" : ["linux/amd64"],
         "runner" : ["self-hosted", "X64", "Linux"]
     },
     {
-        "type" : "kos",
-        "tag": "stable",
-        "config": "config.mk.stable.sample",
-        "latest": true,
-        "arch" : "linux/arm64",
-        "runner" : ["self-hosted", "ARM64", "Linux"]
-    },
-    {
-        "type" : "kos",
-        "tag": "legacy",
+        "type" : "kos-container",
+        "toolchain_tag": "toolchain-kos:sha-1c3282cc89b5ca2be893a8aca08d070212aa87a2-legacy",
+        "cache" : "branch-legacy-amd64",
+        "ports_tag": "kos-ports:sha-1c3282cc89b5ca2be893a8aca08d070212aa87a2-legacy",
         "config": "config.mk.legacy.sample",
-        "latest": true,
-        "arch" : "linux/amd64",
-        "runner" : ["self-hosted", "X64", "Linux"]
+        "latest": false,
+        "platform" : ["linux/amd64"],
+        "runner" : ["self-hosted", "X64", "Linux"],
     }
 ]

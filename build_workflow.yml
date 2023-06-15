@@ -53,46 +53,27 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Build Container
-      # - name: Build Container
-      #   run: |
-      #     export SHA=$(git rev-parse HEAD)
-      #     export ARCH=$(echo "${{ matrix.arch }}" | cut -d "/" -f2)
-      #     docker buildx build \
-      #       --push \
-      #       --cache-from=type=gha,mode=max \
-      #       --cache-to=type=gha,mode=max \
-      #       --platform=${{ matrix.arch }} \
-      #       --build-arg CONFIG_FILE=${{ matrix.config }} \
-      #       --build-arg BUILD_TYPE=kos \
-      #       --target gdb-build \
-      #       -t ghcr.io/cepawiel/temp-toolchain-${{ matrix.type }}:$SHA-${{ matrix.tag }}-$ARCH \
-      #       .
-
-      - id: set
-        run: |
-          echo "sha=$(cd KOS && git rev-parse HEAD)" >> $GITHUB_OUTPUT
-          echo "arch=$(echo "${{ matrix.arch }}" | cut -d "/" -f2)" >> $GITHUB_OUTPUT
-
-      - name: Build base Docker image
+      - name: Build Container
         uses: docker/build-push-action@v2
         with:
           context: .
-          platforms: ${{ matrix.arch }}
+          platforms: ${{ matrix.platform }}
           build-args: |
             CONFIG_FILE=${{ matrix.config }}
             BUILD_TYPE=kos
-          tags: |
-            ghcr.io/cepawiel/temp-toolchain-${{ matrix.type }}:${{ steps.set.outputs.sha }}-${{ matrix.tag }}-${{ steps.set.outputs.arch }}
-          cache-from: type=gha,scope=cached-stage
-          cache-to: type=gha,scope=cached-stage,mode=max
+          tags: ${{ matrix.toolchain_tag }}
+          cache-from: type=gha,scope=scope=${{ matrix.cache }}
+          cache-to: type=gha,scope=scope=${{ matrix.cache }},mode=max
           target: gdb-build
           push: true
 
 
   multi_arch_containers:
-    needs: [build_matrix]
+    needs: [setup, build_matrix]
     runs-on: ubuntu-latest
 
     steps:
-        - uses: actions/checkout@v3
+        - run: |
+            docker manifest create cepawiel/toolchain-kos:latest \
+              --amend jasonrandrews/hello-world:aarch64 \
+              --amend jasonrandrews/hello-world:x86_64
