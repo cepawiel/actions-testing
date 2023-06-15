@@ -1,6 +1,6 @@
 [
     {
-        "type" : "kos-container",
+        "type" : "kos",
         "tag": "testing",
         "config": "config.mk.testing.sample",
         "latest": false,
@@ -8,7 +8,7 @@
         "runner" : ["self-hosted", "X64", "Linux"]
     },
     {
-        "type" : "kos-container",
+        "type" : "kos",
         "tag": "testing",
         "config": "config.mk.testing.sample",
         "latest": false,
@@ -16,7 +16,7 @@
         "runner" : ["self-hosted", "ARM64", "Linux"]
     },
     {
-        "type" : "kos-container",
+        "type" : "kos",
         "tag": "stable",
         "config": "config.mk.stable.sample",
         "latest": true,
@@ -24,7 +24,7 @@
         "runner" : ["self-hosted", "X64", "Linux"]
     },
     {
-        "type" : "kos-container",
+        "type" : "kos",
         "tag": "stable",
         "config": "config.mk.stable.sample",
         "latest": true,
@@ -32,7 +32,7 @@
         "runner" : ["self-hosted", "ARM64", "Linux"]
     },
     {
-        "type" : "kos-container",
+        "type" : "kos",
         "tag": "legacy",
         "config": "config.mk.legacy.sample",
         "latest": true,

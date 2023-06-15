@@ -53,11 +53,15 @@ jobs:
       # Build Container
       - name: Build Container
         run: |
+          export SHA=$(git rev-parse HEAD)
+          export ARCH=$(echo "${{ matrix.arch }}" | cut -d "/" -f2)
           docker buildx build \
+            --push \
             --platform=${{ matrix.arch }} \
             --build-arg CONFIG_FILE=${{ matrix.config }} \
             --build-arg BUILD_TYPE=kos \
             --target gdb-build \
+            -t ghrc.io/cepawiel/temp-toolchain-${{ matrix.type }}:$SHA-${{ matrix.tag }}-$ARCH \
             .
   
         
