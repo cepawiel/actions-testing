@@ -78,6 +78,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
+          platforms: ${{ matrix.arch }}
           build-args: |
             CONFIG_FILE=${{ matrix.config }}
             BUILD_TYPE=kos
@@ -86,6 +87,7 @@ jobs:
           cache-from: type=gha,scope=cached-stage
           cache-to: type=gha,scope=cached-stage,mode=max
           target: gdb-build
+          push: true
 
   multi_arch_containers:
     needs: [build_matrix]
