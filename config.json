@@ -6,7 +6,7 @@
         "ports_tag": "kos-ports:sha-1c3282cc89b5ca2be893a8aca08d070212aa87a2-testing",
         "config": "config.mk.testing.sample",
         "latest": false,
-        "platform" : ["linux/amd64"],
+        "platform" : "linux/amd64",
         "runner" : ["self-hosted", "X64", "Linux"]
     },
     {
@@ -16,7 +16,7 @@
         "ports_tag": "kos-ports:sha-1c3282cc89b5ca2be893a8aca08d070212aa87a2-stable",
         "config": "config.mk.stable.sample",
         "latest": true,
-        "platform" : ["linux/amd64"],
+        "platform" : "linux/amd64",
         "runner" : ["self-hosted", "X64", "Linux"]
     },
     {
@@ -26,7 +26,7 @@
         "ports_tag": "kos-ports:sha-1c3282cc89b5ca2be893a8aca08d070212aa87a2-legacy",
         "config": "config.mk.legacy.sample",
         "latest": false,
-        "platform" : ["linux/amd64"],
+        "platform" : "linux/amd64",
         "runner" : ["self-hosted", "X64", "Linux"]
     }
 ]
