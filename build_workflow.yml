@@ -53,10 +53,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - id: set
-        run: |
-          echo "arch=$(echo "linux/amd64" | cut -d "/" -f2)" >> $GITHUB_OUTPUT
-
       - name: Build Container
         uses: docker/build-push-action@v4
         with:
@@ -66,7 +62,7 @@ jobs:
           build-args: |
             CONFIG_FILE=${{ matrix.config }}
             BUILD_TYPE=kos
-          tags: ${{ matrix.toolchain_tag }}-${{ steps.set.outputs.arch }}
+          tags: ${{ matrix.toolchain_tag }}
           cache-from: type=gha,scope=${{ matrix.cache }}
           cache-to: type=gha,scope=${{ matrix.cache }},mode=max
           target: gdb-build
