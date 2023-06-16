@@ -79,5 +79,5 @@ jobs:
 
     steps:
         - run: |
-            docker manifest create cepawiel/toolchain-kos:latest \
+            docker manifest create  ghcr.io/test-cepawiel/toolchain-kos:latest \
               --amend ghcr.io/cepawiel/temp-toolchain-kos:sha-1c3282cc89b5ca2be893a8aca08d070212aa87a2-testing-amd64
