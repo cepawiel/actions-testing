@@ -78,7 +78,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-        - run: |
-            docker manifest create ghcr.io/cepawiel/test-toolchain-kos:latest \
-              --amend ghcr.io/cepawiel/temp-toolchain-kos:sha-1c3282cc89b5ca2be893a8aca08d070212aa87a2-testing-amd64
-            docker manifest push ghcr.io/cepawiel/test-toolchain-kos:latest
+      - name: Login to Github Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - run: |
+          docker manifest create ghcr.io/cepawiel/test-toolchain-kos:latest \
+            --amend ghcr.io/cepawiel/temp-toolchain-kos:sha-1c3282cc89b5ca2be893a8aca08d070212aa87a2-testing-amd64
+          docker manifest push ghcr.io/cepawiel/test-toolchain-kos:latest
