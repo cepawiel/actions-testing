@@ -66,8 +66,8 @@ jobs:
             CONFIG_FILE=${{ matrix.config }}
             BUILD_TYPE=kos
           tags: ${{ matrix.toolchain_tag }}-${{ steps.set.outputs.arch }}
-          cache-from: type=gha,scope=scope=${{ matrix.cache }}
-          cache-to: type=gha,scope=scope=${{ matrix.cache }},mode=max
+          cache-from: type=gha,scope=${{ matrix.cache }}
+          cache-to: type=gha,scope=${{ matrix.cache }},mode=max
           target: gdb-build
           push: true
 
