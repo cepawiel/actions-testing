@@ -1,0 +1,11 @@
+[
+    {
+        "type" : "containers",
+        "name" : "ghcr.io/cepawiel/test-toolchain-kos",
+        "tags" : ["latest"],
+        "src" : [
+            "ghcr.io/cepawiel/temp-toolchain-kos:sha-1c3282cc89b5ca2be893a8aca08d070212aa87a2-testing-amd64",
+            "ghcr.io/cepawiel/temp-toolchain-kos:sha-1c3282cc89b5ca2be893a8aca08d070212aa87a2-testing-arm64"
+        ]
+    }
+]

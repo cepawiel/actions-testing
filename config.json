@@ -7,7 +7,7 @@
         "config": "config.mk.testing.sample",
         "latest": false,
         "platform" : "linux/amd64",
-        "runner" : ["self-hosted", "X64", "Linux"]
+        "runner" : ["self-hosted", "X64"]
     },
     {
         "type" : "kos-container",
@@ -17,7 +17,7 @@
         "config": "config.mk.testing.sample",
         "latest": false,
         "platform" : "linux/arm64",
-        "runner" : ["self-hosted", "arm64", "Linux"]
+        "runner" : ["self-hosted", "arm64"]
     },
     {
         "type" : "kos-container",
@@ -27,7 +27,7 @@
         "config": "config.mk.stable.sample",
         "latest": true,
         "platform" : "linux/amd64",
-        "runner" : ["self-hosted", "X64", "Linux"]
+        "runner" : ["self-hosted", "X64"]
     },
     {
         "type" : "kos-container",
@@ -37,6 +37,6 @@
         "config": "config.mk.legacy.sample",
         "latest": false,
         "platform" : "linux/amd64",
-        "runner" : ["self-hosted", "X64", "Linux"]
+        "runner" : ["self-hosted", "X64"]
     }
 ]
