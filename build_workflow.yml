@@ -9,7 +9,8 @@ jobs:
     name: Setup Matrix
     runs-on: ubuntu-latest
     outputs:
-      config: ${{ steps.set.outputs.config }}
+      build_config: ${{ steps.set.outputs.build_config }}
+      publish_config: ${{ steps.set.outputs.publish_config }}
     steps:
         - uses: actions/checkout@v3
 
@@ -17,7 +18,8 @@ jobs:
 
         - id: set
           run: |
-            echo "config=$(cat config.json | jq -c)" >> $GITHUB_OUTPUT
+            echo "build_config=$(cat build.json | jq -c)" >> $GITHUB_OUTPUT
+            echo "publish_config=$(cat publish.json | jq -c)" >> $GITHUB_OUTPUT
 
 
   # 2) Matrix Build
@@ -26,7 +28,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix: 
-        include: ${{ fromJson(needs.setup.outputs.config) }}
+        include: ${{ fromJson(needs.setup.outputs.build_config) }}
     runs-on: ${{ matrix.runner }}
     steps:
       # Checkout Build Scripts
@@ -72,7 +74,10 @@ jobs:
   publish_containers:
     needs: [setup, build_matrix]
     runs-on: ubuntu-latest
-
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.setup.outputs.publish_config) }}
     steps:
       - name: Login to Github Container Registry
         uses: docker/login-action@v2
@@ -80,6 +85,9 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - run: |
+          echo "${{ matrix.src }}"
 
       - run: |
           docker manifest create ghcr.io/cepawiel/test-toolchain-kos:latest \
