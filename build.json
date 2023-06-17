@@ -1,0 +1,42 @@
+[
+    {
+        "type" : "kos-container",
+        "toolchain_tag": "ghcr.io/cepawiel/temp-toolchain-kos:sha-1c3282cc89b5ca2be893a8aca08d070212aa87a2-testing-amd64",
+        "ports_tag": "ghcr.io/cepawiel/temp-kos-ports:sha-1c3282cc89b5ca2be893a8aca08d070212aa87a2-testing-amd64",
+        "cache" : "branch-testing-amd64",
+        "config": "config.mk.testing.sample",
+        "latest": false,
+        "platform" : "linux/amd64",
+        "runner" : ["self-hosted", "X64"]
+    },
+    {
+        "type" : "kos-container",
+        "toolchain_tag": "ghcr.io/cepawiel/temp-toolchain-kos:sha-1c3282cc89b5ca2be893a8aca08d070212aa87a2-testing-arm64",
+        "ports_tag": "ghcr.io/cepawiel/temp-kos-ports:sha-1c3282cc89b5ca2be893a8aca08d070212aa87a2-testing-arm64",
+        "cache" : "branch-testing-arm64",
+        "config": "config.mk.testing.sample",
+        "latest": false,
+        "platform" : "linux/arm64",
+        "runner" : ["self-hosted", "arm64"]
+    },
+    {
+        "type" : "kos-container",
+        "toolchain_tag": "ghcr.io/cepawiel/temp-toolchain-kos:sha-1c3282cc89b5ca2be893a8aca08d070212aa87a2-stable-amd64",
+        "cache" : "branch-stable-amd64",
+        "ports_tag": "ghcr.io/cepawiel/temp-kos-ports:sha-1c3282cc89b5ca2be893a8aca08d070212aa87a2-stable-amd64",
+        "config": "config.mk.stable.sample",
+        "latest": true,
+        "platform" : "linux/amd64",
+        "runner" : ["self-hosted", "X64"]
+    },
+    {
+        "type" : "kos-container",
+        "toolchain_tag": "ghcr.io/cepawiel/temp-toolchain-kos:sha-1c3282cc89b5ca2be893a8aca08d070212aa87a2-legacy-amd64",
+        "cache" : "branch-legacy-amd64",
+        "ports_tag": "ghcr.io/cepawiel/temp-kos-ports:sha-1c3282cc89b5ca2be893a8aca08d070212aa87a2-legacy-amd64",
+        "config": "config.mk.legacy.sample",
+        "latest": false,
+        "platform" : "linux/amd64",
+        "runner" : ["self-hosted", "X64"]
+    }
+]
