@@ -91,7 +91,7 @@ jobs:
       - run: |
           echo "${{ matrix.src }}"
           for x in ${{ matrix.src }}; do
-            exho $"$x"
+            echo $"$x"
           done
 
       - run: |
