@@ -90,7 +90,7 @@ jobs:
 
       - run: |
           echo "${{ toJson(matrix.src) }}"
-          for x in $( echo "${{ toJson(matrix.src) }}" | jq -c -r @sh ); do
+          for x in $( echo ${{ toJson(matrix.src) }} | jq -c -r @sh ); do
             echo "$x"
           done
 
