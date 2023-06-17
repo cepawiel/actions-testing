@@ -70,6 +70,21 @@ jobs:
           cache-from: type=gha,scope=${{ matrix.cache }}
           cache-to: type=gha,scope=${{ matrix.cache }},mode=max
           target: gdb-build
+          load: true
+
+      - name: Push Container
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          platforms: ${{ matrix.platform }}
+          provenance: false
+          build-args: |
+            CONFIG_FILE=${{ matrix.config }}
+            BUILD_TYPE=kos
+          tags: ${{ matrix.toolchain_tag }}
+          cache-from: type=gha,scope=${{ matrix.cache }}
+          cache-to: type=gha,scope=${{ matrix.cache }},mode=max
+          target: gdb-build
           push: true
 
 
