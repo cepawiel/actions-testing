@@ -89,8 +89,8 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - run: |
-          echo "${{ matrix.src }}"
-          for x in ${{ matrix.src }}; do
+          echo "${{ toJson(matrix.src) }}"
+          for x in ${{ toJson(matrix.src) }}; do
             echo $"$x"
           done
 
