@@ -68,7 +68,7 @@ jobs:
             BUILD_TYPE=kos
           tags: ${{ matrix.toolchain_tag }}
           cache-from: type=gha,scope=${{ matrix.cache }}
-          cache-to: type=gha,scope=${{ matrix.cache }},mode=max
+          # cache-to: type=gha,scope=${{ matrix.cache }},mode=max
           target: gdb-build
           load: true
 
