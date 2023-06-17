@@ -94,10 +94,10 @@ jobs:
           list=$( echo $SRCS | jq -c -r @sh )
           args=""
           for x in $list; do
-            args="$args --amend $x"
+            args="$args --amend \"$x\""
           done
           echo $args
-
+          echo ${{ matrix.name }}
           docker manifest create ${{ matrix.name }}:latest $args
           docker manifest push ${{ matrix.name }}:latest
           
