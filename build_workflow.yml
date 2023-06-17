@@ -92,13 +92,12 @@ jobs:
           SRCS: ${{ toJson(matrix.src) }}
         run: |
           list=$( echo $SRCS | jq -c -r @sh )
-          echo $list
+          args=""
           for x in $list; do
-            echo "$x"
+            args="$args --amend $x"
           done
+          echo $args
 
-      - run: |
-          docker manifest create ghcr.io/cepawiel/test-toolchain-kos:latest \
-            --amend ghcr.io/cepawiel/temp-toolchain-kos:sha-1c3282cc89b5ca2be893a8aca08d070212aa87a2-testing-arm64 \
-            --amend ghcr.io/cepawiel/temp-toolchain-kos:sha-1c3282cc89b5ca2be893a8aca08d070212aa87a2-testing-amd64
-          docker manifest push ghcr.io/cepawiel/test-toolchain-kos:latest
+          docker manifest create ${{ matrix.name }}:latest $args
+          docker manifest push ${{ matrix.name }}:latest
+          
