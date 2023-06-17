@@ -88,8 +88,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - run: |
-          list=$( echo ${{ toJson(matrix.src) }} | jq -c -r @sh )
+      - env:
+          SRCS: ${{ toJson(matrix.src) }}
+        run: |
+          list=$( echo $SRCS | jq -c -r @sh )
           echo $list
           for x in $list; do
             echo "$x"
