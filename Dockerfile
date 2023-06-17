@@ -7,8 +7,8 @@ ARG BASE_PATH=/opt/toolchains/dc
 ARG KOS_PATH=${BASE_PATH}/kos
 ARG DCCHAIN_PATH=${KOS_PATH}/utils/dc-chain
 
-FROM alpine:latest as build-deps
-# FROM ghcr.io/jitesoft/alpine as build-deps
+# FROM alpine:latest as build-deps
+FROM ghcr.io/jitesoft/alpine as build-deps
 
 # Installing prerequisites
 RUN apk add --no-cache \
